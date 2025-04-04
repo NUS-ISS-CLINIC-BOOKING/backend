@@ -1,0 +1,10 @@
+server:
+  port: 8084  # 确保端口不与其他服务冲突
+
+spring:
+  application:
+    name: patient-medicine-service  # 服务名称（唯一）
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848  # Nacos 服务器地址
