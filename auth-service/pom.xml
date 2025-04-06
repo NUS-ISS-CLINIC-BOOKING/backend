@@ -12,7 +12,7 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>login-service</artifactId>
+  <artifactId>auth-service</artifactId>
 
   <dependencies>
     <!-- Spring Web -->

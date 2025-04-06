@@ -1,7 +1,6 @@
-package com.iss.login.service.controller;
+package com.iss.auth.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController

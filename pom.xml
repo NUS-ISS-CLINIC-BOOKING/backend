@@ -67,7 +67,7 @@
     </plugins>
   </build>
   <modules>
-    <module>login-service</module>
+    <module>auth-service</module>
     <module>queue-service</module>
     <module>clinic-service</module>
     <module>patient-medicine-service</module>
