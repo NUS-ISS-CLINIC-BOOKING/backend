@@ -4,6 +4,17 @@ server:
 spring:
   application:
     name: login-service
+
+  datasource:
+    url: jdbc:mysql://101.42.116.10:3306/clinic_booking?serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: Root123456@
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+#  mybatis:
+#    mapper-locations: classpath:mapper/*.xml
+#    type-aliases-package: com.iss.auth.entity
+
   cloud:
     nacos:
       discovery:
