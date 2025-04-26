@@ -12,6 +12,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
@@ -53,20 +55,31 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void save(User user) {
-        String sql = "INSERT INTO User (id, name, sex, email, password, role_id) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO User (name, sex, email, password, role_id) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setLong(1, user.getId());
-            statement.setString(2, user.getName());
-            statement.setInt(3, user.getGender().toOrdinal());
-            statement.setString(4, user.getEmail());
-            statement.setString(5, user.getPassword());
-            statement.setInt(6, user.getUserType().toOrdinal());
+            statement.setString(1, user.getName());
+            statement.setInt(2, user.getGender().toOrdinal());
+            statement.setString(3, user.getEmail());
+            statement.setString(4, user.getPassword());
+            statement.setInt(5, user.getUserType().toOrdinal());
 
             statement.executeUpdate();
+
+            // ✅ 回写数据库生成的主键（可选）
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                long generatedId = generatedKeys.getLong(1);
+                // ⚠️ 你需要在 User 实体中提供 setId 方法
+                user.afterSaving(generatedId);
+            }
+
         } catch (SQLException e) {
             throw new RuntimeException("Failed to save user", e);
         }
     }
+
 }
+
+

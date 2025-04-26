@@ -3,6 +3,7 @@ package com.iss.auth.domain.entity;
 import com.iss.auth.domain.vo.GenderType;
 import com.iss.auth.domain.vo.UserType;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Getter
@@ -29,4 +30,10 @@ public class User {
         return encoder.matches(rawPassword, this.password);
     }
 
+    public void afterSaving(Long generatedId) {
+        if (this.id != null) {
+            throw new IllegalStateException("User ID is already set");
+        }
+        this.id = generatedId;
+    }
 }
