@@ -1,6 +1,5 @@
 package com.iss.auth;
 
-import com.iss.auth.entity.User;
 //import com.iss.auth.mapper.UserMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
