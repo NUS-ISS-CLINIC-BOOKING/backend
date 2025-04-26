@@ -5,7 +5,7 @@ import com.iss.auth.domain.vo.UserType;
 import com.iss.auth.domain.repository.UserRepository;
 import com.iss.auth.dto.LoginCommand;
 import com.iss.auth.dto.LoginResult;
-
+import com.iss.auth.infrastructure.jwt.JwtTokenProvider;
 import com.iss.auth.dto.RegisterCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +27,7 @@ public class AuthApplicationService {
     private final ClinicStaffLoginHandlerImpl clinicStaffLoginHandler;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
 
     private Map<UserType, UserLoginHandler> handlerMap;
 
@@ -57,7 +58,8 @@ public class AuthApplicationService {
         }
         handler.handle(user);
 
-        return new LoginResult(123L, "1212");
+        String token = jwtTokenProvider.generateToken(user.getId(), user.getUserType().name());
+        return new LoginResult(user.getId(), token);
     }
 
     public void register(RegisterCommand cmd) {
