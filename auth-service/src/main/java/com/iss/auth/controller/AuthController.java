@@ -1,8 +1,11 @@
 package com.iss.auth.controller;
 import com.iss.auth.application.AuthApplicationService;
+import com.iss.auth.common.response.SuccessResponse;
 import com.iss.auth.dto.LoginCommand;
 import com.iss.auth.dto.LoginResult;
 import com.iss.auth.dto.RegisterCommand;
+import com.iss.auth.dto.RegisterResult;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,13 +29,13 @@ public class AuthController {
      * @return 登录结果，包括token等
      */
     @PostMapping("/login")
-    public LoginResult login(@RequestBody LoginCommand request) {
-        return authApplicationService.login(request);
+    public SuccessResponse<LoginResult> login(@RequestBody @Valid LoginCommand request) {
+        return new SuccessResponse<>(authApplicationService.login(request));
     }
 
     @PostMapping("/register")
-    public void register(@RequestBody RegisterCommand command) {
-        authApplicationService.register(command);
+    public SuccessResponse<RegisterResult> register(@RequestBody @Valid RegisterCommand command) {
+        return new SuccessResponse<>(authApplicationService.register(command));
     }
 
 }

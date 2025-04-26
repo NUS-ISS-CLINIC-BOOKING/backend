@@ -1,15 +1,24 @@
 package com.iss.auth.infrastructure.jwt;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
 
-    private static final String SECRET_KEY = "YourVerySecretKey123456";
+    private SecretKey SECRET_KEY;
     private static final long EXPIRATION_TIME = 86400000; // 1天（单位：毫秒）
+
+
+    @PostConstruct
+    public void init() {
+        this.SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    }
 
     // 生成 token
     public String generateToken(Long userId, String role) {
@@ -18,7 +27,7 @@ public class JwtTokenProvider {
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
                 .compact();
     }
 
