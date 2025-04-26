@@ -2,11 +2,6 @@ package com.iss.auth;
 
 import com.iss.auth.entity.User;
 //import com.iss.auth.mapper.UserMapper;
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -17,7 +12,6 @@ import java.util.List;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@MapperScan("com.iss.auth.mapper")
 public class AuthApplication {
     public static void main(String[] args) {
         SpringApplication.run(AuthApplication.class, args);

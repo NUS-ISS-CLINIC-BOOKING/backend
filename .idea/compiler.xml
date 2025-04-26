@@ -7,9 +7,15 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="auth-service" />
+        <module name="gateway" />
+      </profile>
+      <profile name="Annotation profile for clinic-booking" enabled="true">
+        <sourceOutputDir name="../target/generated-sources/annotations" />
+        <sourceTestOutputDir name="../target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="clinic-service" />
         <module name="patient-medicine-service" />
         <module name="queue-service" />
-        <module name="clinic-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -19,9 +25,9 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="auth-service" options="-parameters" />
-      <module name="clinic-service" options="-parameters" />
-      <module name="patient-medicine-service" options="-parameters" />
-      <module name="queue-service" options="-parameters" />
+      <module name="clinic-service" options="" />
+      <module name="patient-medicine-service" options="" />
+      <module name="queue-service" options="" />
     </option>
   </component>
 </project>
