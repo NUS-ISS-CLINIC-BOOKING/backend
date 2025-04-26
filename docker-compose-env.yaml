@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  nacos:
+    image: nacos/nacos-server:v2.2.0-slim
+    container_name: nacos
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+      - "9849:9849"
+    volumes:
+      - ./data/nacos-data:/home/nacos/data
+    networks:
+      - clinic-booking
+    environment:
+      - MODE=standalone # 单节点模式启动
+      - PREFER_HOST_MODE=hostname # 支持 hostname
+      - TZ=Asia/Shanghai # 控制时区
+
+networks:
+  clinic-booking:
+    driver: bridge
