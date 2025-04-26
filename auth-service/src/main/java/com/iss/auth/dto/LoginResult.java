@@ -1,5 +1,8 @@
 package com.iss.auth.dto;
 
+import lombok.Data;
+
+@Data
 public class LoginResult {
     private Long userId;
     private String token;
@@ -8,6 +11,5 @@ public class LoginResult {
         this.userId = userId;
         this.token = token;
     }
-
     // Getters and Setters
 }
