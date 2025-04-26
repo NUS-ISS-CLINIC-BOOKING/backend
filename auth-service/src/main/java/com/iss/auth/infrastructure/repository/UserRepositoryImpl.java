@@ -67,11 +67,9 @@ public class UserRepositoryImpl implements UserRepository {
 
             statement.executeUpdate();
 
-            // ✅ 回写数据库生成的主键（可选）
             ResultSet generatedKeys = statement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 long generatedId = generatedKeys.getLong(1);
-                // ⚠️ 你需要在 User 实体中提供 setId 方法
                 user.afterSaving(generatedId);
             }
 

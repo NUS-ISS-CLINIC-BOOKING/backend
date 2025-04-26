@@ -1,10 +1,12 @@
 package com.iss.auth.application;
 import com.iss.auth.domain.entity.User;
 import com.iss.auth.domain.service.*;
+import com.iss.auth.domain.vo.GenderType;
 import com.iss.auth.domain.vo.UserType;
 import com.iss.auth.domain.repository.UserRepository;
 import com.iss.auth.dto.LoginCommand;
 import com.iss.auth.dto.LoginResult;
+import com.iss.auth.dto.RegisterResult;
 import com.iss.auth.infrastructure.jwt.JwtTokenProvider;
 import com.iss.auth.dto.RegisterCommand;
 import lombok.RequiredArgsConstructor;
@@ -51,7 +53,6 @@ public class AuthApplicationService {
             throw new IllegalArgumentException("Invalid password");
         }
 
-        // 3. 分发到对应的登录处理器
         UserLoginHandler handler = handlerMap.get(user.getUserType());
         if (handler == null) {
             throw new IllegalArgumentException("Unsupported user type: " + user.getUserType());
@@ -62,28 +63,28 @@ public class AuthApplicationService {
         return new LoginResult(user.getId(), token);
     }
 
-    public void register(RegisterCommand cmd) {
-        // 1. 判断是否已注册
+    public RegisterResult register(RegisterCommand cmd) {
+
         User existing = userRepository.findByEmail(cmd.getEmail());
         if (existing != null) {
             throw new IllegalArgumentException("Email already registered");
         }
 
-        // 2. 加密密码
         String encodedPassword = passwordEncoder.encode(cmd.getPassword());
 
-        // 3. 创建 User 对象
         User user = new User(
                 null,
                 cmd.getName(),
-                cmd.getGender(),
+                GenderType.fromOrdinal(cmd.getGender()),
                 cmd.getEmail(),
                 encodedPassword,
-                cmd.getUserType()
+                UserType.fromOrdinal(cmd.getUserType())
         );
 
-        // 4. 保存
+        // 4. 保存到数据库
         userRepository.save(user);
-    }
 
+        // 5. 返回注册结果
+        return new RegisterResult(user.getId(), "Register success");
+    }
 }
