@@ -1,24 +1,72 @@
 package com.iss.auth.infrastructure.repository;
+
 import com.iss.auth.domain.entity.User;
 import com.iss.auth.domain.repository.UserRepository;
+import com.iss.auth.domain.vo.GenderType;
+import com.iss.auth.domain.vo.UserType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
 
+    private final DataSource dataSource;
+
+    @Autowired
+    public UserRepositoryImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     @Override
     public User findByEmail(String email) {
-        // TODO: 这里连数据库查询，比如 SELECT * FROM user WHERE email = ?
-        // 暂时举例，实际应该接数据库
-        if ("test@example.com".equals(email)) {
-            return new User(1L, "James", "test@example.com", "password123", null); // 手写一条
+        String sql = "SELECT id, name, sex, email, password, role_id FROM User WHERE email = ?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, email);
+
+            ResultSet rs = statement.executeQuery();
+            if (rs.next()) {
+                int gender = rs.getInt("sex");
+                GenderType genderType = gender == 0 ? GenderType.Male : GenderType.Female;
+                int roleId = rs.getInt("role_id");
+                return new User(
+                        rs.getLong("id"),
+                        rs.getString("name"),
+                        GenderType.fromOrdinal(rs.getInt("sex")),
+                        rs.getString("email"),
+                        rs.getString("password"),
+                        UserType.fromOrdinal(rs.getInt("role_id"))
+                );
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to find user by email", e);
         }
         return null;
     }
 
     @Override
     public void save(User user) {
-        // TODO: 这里是插入到数据库
-        System.out.println("Save user: " + user.getEmail());
+        String sql = "INSERT INTO User (id, name, sex, email, password, role_id) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setLong(1, user.getId());
+            statement.setString(2, user.getName());
+            statement.setInt(3, user.getGender().toOrdinal());
+            statement.setString(4, user.getEmail());
+            statement.setString(5, user.getPassword());
+            statement.setInt(6, user.getUserType().toOrdinal());
+
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to save user", e);
+        }
     }
 }

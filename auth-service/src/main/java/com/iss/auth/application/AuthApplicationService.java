@@ -6,7 +6,9 @@ import com.iss.auth.domain.repository.UserRepository;
 import com.iss.auth.dto.LoginCommand;
 import com.iss.auth.dto.LoginResult;
 
+import com.iss.auth.dto.RegisterCommand;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 import java.util.EnumMap;
@@ -24,6 +26,7 @@ public class AuthApplicationService {
     private final AdminLoginHandlerImpl adminLoginHandler;
     private final ClinicStaffLoginHandlerImpl clinicStaffLoginHandler;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     private Map<UserType, UserLoginHandler> handlerMap;
 
@@ -37,16 +40,15 @@ public class AuthApplicationService {
     }
 
     public LoginResult login(LoginCommand request) {
-        // 1. 根据email查找用户（假设有userRepository）
+
         User user = userRepository.findByEmail(request.getEmail());
         if (user == null) {
             throw new IllegalArgumentException("User not found");
         }
 
-        // 2. 校验密码
-//        if (!passwordEncoder.matches(request.getPassword(), user.getEncryptedPassword())) {
-//            throw new IllegalArgumentException("Invalid password");
-//        }
+        if (!user.passwordMatches(request.getPassword(), passwordEncoder)) {
+            throw new IllegalArgumentException("Invalid password");
+        }
 
         // 3. 分发到对应的登录处理器
         UserLoginHandler handler = handlerMap.get(user.getUserType());
@@ -55,8 +57,31 @@ public class AuthApplicationService {
         }
         handler.handle(user);
 
-        // 4. 生成token返回
-//        String token = generateToken(user);
         return new LoginResult(123L, "1212");
     }
+
+    public void register(RegisterCommand cmd) {
+        // 1. 判断是否已注册
+        User existing = userRepository.findByEmail(cmd.getEmail());
+        if (existing != null) {
+            throw new IllegalArgumentException("Email already registered");
+        }
+
+        // 2. 加密密码
+        String encodedPassword = passwordEncoder.encode(cmd.getPassword());
+
+        // 3. 创建 User 对象
+        User user = new User(
+                null,
+                cmd.getName(),
+                cmd.getGender(),
+                cmd.getEmail(),
+                encodedPassword,
+                cmd.getUserType()
+        );
+
+        // 4. 保存
+        userRepository.save(user);
+    }
+
 }
