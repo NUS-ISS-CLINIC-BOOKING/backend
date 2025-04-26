@@ -41,15 +41,14 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+
+
     </dependencies>
   </dependencyManagement>
   <!-- 子模块通用依赖 -->
   <dependencies>
     <!-- Spring Web -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
+
     <!-- Spring Boot Test -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -71,5 +70,6 @@
     <module>queue-service</module>
     <module>clinic-service</module>
     <module>patient-medicine-service</module>
+    <module>gateway</module>
   </modules>
 </project>
