@@ -8,3 +8,9 @@ spring:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848  # Nacos 服务器地址
+
+  datasource:
+    url: jdbc:mysql://101.42.116.10:3306/clinic_booking?serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: Root123456@
+    driver-class-name: com.mysql.cj.jdbc.Driver

@@ -21,10 +21,45 @@
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
 
+    <!-- MySQL 驱动 -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>  <!-- 注意：是 mysql-connector-java，不是 mysql-connector-j -->
+      <version>8.0.33</version>
+    </dependency>
+
+    <!-- MyBatis Starter -->
+    <dependency>
+      <groupId>org.mybatis.spring.boot</groupId>
+      <artifactId>mybatis-spring-boot-starter</artifactId>
+      <version>3.0.2</version> <!-- ✅ 支持 Spring Boot 3 的版本 -->
+    </dependency>
+
+    <!-- Spring Boot 数据源支持 -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jdbc</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.30</version> <!-- 可根据需要调整版本 -->
+      <scope>provided</scope>
+    </dependency>
+
     <!-- Nacos Discovery -->
     <dependency>
       <groupId>com.alibaba.cloud</groupId>
       <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-loadbalancer</artifactId>
+    </dependency>
+
+
+
   </dependencies>
 </project>
