@@ -9,7 +9,6 @@
         <outputRelativeToContentRoot value="true" />
         <module name="patient-medicine-service" />
         <module name="queue-service" />
-        <module name="clinic-service" />
         <module name="gateway" />
       </profile>
       <profile name="Annotation profile for clinic-booking" enabled="true">
@@ -19,6 +18,7 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
         </processorPath>
+        <module name="clinic-service" />
         <module name="auth-service" />
       </profile>
     </annotationProcessing>
@@ -31,8 +31,8 @@
       <module name="auth-service" options="-parameters" />
       <module name="clinic-service" options="-parameters" />
       <module name="gateway" options="-parameters" />
-      <module name="patient-medicine-service" options="-parameters" />
-      <module name="queue-service" options="-parameters" />
+      <module name="patient-medicine-service" options="" />
+      <module name="queue-service" options="" />
     </option>
   </component>
 </project>
