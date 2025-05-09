@@ -13,10 +13,20 @@ spring:
     gateway:
       routes:
         - id: clinic_route
-          uri: lb://clinic-service  # ? ?? Nacos ?????????
+          uri: lb://clinic-service
           predicates:
-            - Path=/clinic/**       # ???? /clinic ?????
+            - Path=/api/clinic/**
+
         - id: login_route
-          uri: lb://login-service  # ? ?? Nacos ?????????
+          uri: lb://login-service
           predicates:
-            - Path=/login/**       # ???? /clinic ?????
+            - Path=/api/auth/**
+#      routes:
+#        - id: clinic_route
+#          uri: lb://clinic-service  # ? ?? Nacos ?????????
+#          predicates:
+#            - Path=/clinic/**       # ???? /clinic ?????
+#        - id: login_route
+#          uri: lb://login-service  # ? ?? Nacos ?????????
+#          predicates:
+#            - Path=/login/**       # ???? /clinic ?????
