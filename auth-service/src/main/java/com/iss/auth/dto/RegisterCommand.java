@@ -1,7 +1,5 @@
 package com.iss.auth.dto;
 
-import com.iss.auth.domain.vo.GenderType;
-import com.iss.auth.domain.vo.UserType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,4 +26,10 @@ public class RegisterCommand {
 
     @NotNull(message = "User type must not be null")
     private int userType;
+
+    @NotNull(message = "Clinic ID must not be null")
+    private int clinicID;
+
+    @NotBlank(message = "Speciality must not be blank")
+    private String speciality;
 }
