@@ -18,6 +18,17 @@ public class User {
     private int clinicID;
     private String speciality;
 
+    public User(Long id, String name, GenderType gender, String email, String password, UserType userType, int clinicID, String speciality) {
+        this.id = id;
+        this.gender = gender;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.userType = userType;
+        this.clinicID = clinicID;
+        this.speciality = speciality;
+    }
+
     public User(Long id, String name, GenderType gender, String email, String password, UserType userType) {
         this.id = id;
         this.gender = gender;
