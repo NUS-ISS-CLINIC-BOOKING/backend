@@ -27,7 +27,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User findByEmail(String email) {
-        String sql = "SELECT id, name, sex, email, password, role_id FROM User WHERE email = ?";
+        String sql = "SELECT id, name, sex, email, password, role_id FROM user WHERE email = ?";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
@@ -55,7 +55,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void save(User user) {
-        String userSql = "INSERT INTO User (name, sex, email, password, role_id) VALUES (?, ?, ?, ?, ?)";
+        String userSql = "INSERT INTO user (name, sex, email, password, role_id) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection connection = dataSource.getConnection()) {
 
@@ -86,6 +86,13 @@ public class UserRepositoryImpl implements UserRepository {
                             staffStmt.setInt(2, user.getClinicID());
                             staffStmt.setString(3, user.getSpeciality());
                             staffStmt.executeUpdate();
+                        }
+
+                        String staffListSql = "INSERT INTO staff_list (id, staff_id, role_id) VALUES (?, ?, ?)";
+                        try (PreparedStatement staffListStmt = connection.prepareStatement(staffListSql)) {
+                            staffListStmt.setLong(2, generatedId);
+                            staffListStmt.setInt(1, user.getClinicID());
+                            staffListStmt.setInt(3, user.getUserType().toOrdinal());
                         }
                     }
 

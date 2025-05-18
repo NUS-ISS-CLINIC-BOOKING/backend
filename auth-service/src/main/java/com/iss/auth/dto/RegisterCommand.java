@@ -27,9 +27,7 @@ public class RegisterCommand {
     @NotNull(message = "User type must not be null")
     private int userType;
 
-    @NotNull(message = "Clinic ID must not be null")
     private int clinicID;
 
-    @NotBlank(message = "Speciality must not be blank")
     private String speciality;
 }
