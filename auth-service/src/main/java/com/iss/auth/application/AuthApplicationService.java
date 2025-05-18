@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 应用服务，负责登录流程编排
@@ -64,10 +65,14 @@ public class AuthApplicationService {
     }
 
     public RegisterResult register(RegisterCommand cmd) {
+        if (UserType.fromOrdinal(cmd.getUserType()) != UserType.PATIENT && (cmd.getClinicID() == 0 || Objects.equals(cmd.getSpeciality(), ""))) {
+            // If the register type is not patient and clinic id or speciality is null, then the register cmd is invalid
+            throw new IllegalArgumentException("invalid request, please specify clinic and speciality");
+        }
 
         User existing = userRepository.findByEmail(cmd.getEmail());
         if (existing != null) {
-            throw new IllegalArgumentException("Email already registered");
+            throw new IllegalArgumentException("User already registered");
         }
 
         String encodedPassword = passwordEncoder.encode(cmd.getPassword());

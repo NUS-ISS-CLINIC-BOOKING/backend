@@ -15,7 +15,8 @@ public class User {
     private String email;
     private String password;
     private UserType userType;
-
+    private int clinicID;
+    private String speciality;
 
     public User(Long id, String name, GenderType gender, String email, String password, UserType userType) {
         this.id = id;
