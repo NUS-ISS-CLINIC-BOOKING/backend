@@ -1,5 +1,6 @@
 package com.iss.auth.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,9 +26,12 @@ public class RegisterCommand {
     private int gender;
 
     @NotNull(message = "User type must not be null")
+    @JsonProperty("usertype")
     private int userType;
 
+    @JsonProperty("clinicid")
     private int clinicID;
 
+    @JsonProperty("speciality")
     private String speciality;
 }

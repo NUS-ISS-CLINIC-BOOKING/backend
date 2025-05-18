@@ -65,7 +65,7 @@ public class AuthApplicationService {
     }
 
     public RegisterResult register(RegisterCommand cmd) {
-        if (UserType.fromOrdinal(cmd.getUserType()) != UserType.PATIENT && (cmd.getClinicID() == 0 || Objects.equals(cmd.getSpeciality(), ""))) {
+        if (UserType.fromOrdinal(cmd.getUserType()) != UserType.PATIENT && UserType.fromOrdinal(cmd.getUserType()) != UserType.ADMIN && (cmd.getClinicID() == 0 || Objects.equals(cmd.getSpeciality(), ""))) {
             // If the register type is not patient and clinic id or speciality is null, then the register cmd is invalid
             throw new IllegalArgumentException("invalid request, please specify clinic and speciality");
         }
@@ -74,16 +74,18 @@ public class AuthApplicationService {
         if (existing != null) {
             throw new IllegalArgumentException("User already registered");
         }
-
+        System.out.println(cmd);
         String encodedPassword = passwordEncoder.encode(cmd.getPassword());
-
+        System.out.println(cmd.getUserType());
         User user = new User(
                 null,
                 cmd.getName(),
                 GenderType.fromOrdinal(cmd.getGender()),
                 cmd.getEmail(),
                 encodedPassword,
-                UserType.fromOrdinal(cmd.getUserType())
+                UserType.fromOrdinal(cmd.getUserType()),
+                cmd.getClinicID(),
+                cmd.getSpeciality()
         );
 
         // 4. 保存到数据库

@@ -79,20 +79,24 @@ public class UserRepositoryImpl implements UserRepository {
 
                     //  如果不是病人，写入 clinic_staff_info 表
                     if (user.getUserType() != UserType.PATIENT) {
-                        String staffSql = "INSERT INTO clinic_staff_info (user_id, clinic_id, speciality) VALUES (?, ?, ?)";
+                        String staffSql = "INSERT INTO clinic_staff_info (id, clinic_id, speciality) VALUES (?, ?, ?)";
 
                         try (PreparedStatement staffStmt = connection.prepareStatement(staffSql)) {
                             staffStmt.setLong(1, generatedId);
                             staffStmt.setInt(2, user.getClinicID());
                             staffStmt.setString(3, user.getSpeciality());
+                            System.out.println("写入clinic_staff_info");
+                            System.out.println("写入clinicid: " + user.getClinicID());
                             staffStmt.executeUpdate();
                         }
 
                         String staffListSql = "INSERT INTO staff_list (id, staff_id, role_id) VALUES (?, ?, ?)";
                         try (PreparedStatement staffListStmt = connection.prepareStatement(staffListSql)) {
-                            staffListStmt.setLong(2, generatedId);
                             staffListStmt.setInt(1, user.getClinicID());
+                            staffListStmt.setLong(2, generatedId);
                             staffListStmt.setInt(3, user.getUserType().toOrdinal());
+                            System.out.println("写入staff_list");
+                            staffListStmt.executeUpdate();
                         }
                     }
 
