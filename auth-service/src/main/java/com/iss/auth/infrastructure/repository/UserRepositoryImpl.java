@@ -27,7 +27,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User findByEmail(String email) {
-        String sql = "SELECT id, name, sex, email, password, role_id FROM User WHERE email = ?";
+        String sql = "SELECT id, name, sex, email, password, role_id FROM user WHERE email = ?";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
@@ -55,28 +55,67 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public void save(User user) {
-        String sql = "INSERT INTO User (name, sex, email, password, role_id) VALUES (?, ?, ?, ?, ?)";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        String userSql = "INSERT INTO user (name, sex, email, password, role_id) VALUES (?, ?, ?, ?, ?)";
 
-            statement.setString(1, user.getName());
-            statement.setInt(2, user.getGender().toOrdinal());
-            statement.setString(3, user.getEmail());
-            statement.setString(4, user.getPassword());
-            statement.setInt(5, user.getUserType().toOrdinal());
+        try (Connection connection = dataSource.getConnection()) {
 
-            statement.executeUpdate();
+            // 开启事务
+            connection.setAutoCommit(false);
 
-            ResultSet generatedKeys = statement.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                long generatedId = generatedKeys.getLong(1);
-                user.afterSaving(generatedId);
+            try (PreparedStatement statement = connection.prepareStatement(userSql, Statement.RETURN_GENERATED_KEYS)) {
+
+                statement.setString(1, user.getName());
+                statement.setInt(2, user.getGender().toOrdinal());
+                statement.setString(3, user.getEmail());
+                statement.setString(4, user.getPassword());
+                statement.setInt(5, user.getUserType().toOrdinal());
+
+                statement.executeUpdate();
+
+                ResultSet generatedKeys = statement.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    long generatedId = generatedKeys.getLong(1);
+                    user.afterSaving(generatedId);
+
+                    //  如果不是病人，写入 clinic_staff_info 表
+                    if (user.getUserType() != UserType.PATIENT) {
+                        String staffSql = "INSERT INTO clinic_staff_info (id, clinic_id, speciality) VALUES (?, ?, ?)";
+
+                        try (PreparedStatement staffStmt = connection.prepareStatement(staffSql)) {
+                            staffStmt.setLong(1, generatedId);
+                            staffStmt.setInt(2, user.getClinicID());
+                            staffStmt.setString(3, user.getSpeciality());
+                            System.out.println("写入clinic_staff_info");
+                            System.out.println("写入clinicid: " + user.getClinicID());
+                            staffStmt.executeUpdate();
+                        }
+
+                        String staffListSql = "INSERT INTO staff_list (id, staff_id, role_id) VALUES (?, ?, ?)";
+                        try (PreparedStatement staffListStmt = connection.prepareStatement(staffListSql)) {
+                            staffListStmt.setInt(1, user.getClinicID());
+                            staffListStmt.setLong(2, generatedId);
+                            staffListStmt.setInt(3, user.getUserType().toOrdinal());
+                            System.out.println("写入staff_list");
+                            staffListStmt.executeUpdate();
+                        }
+                    }
+
+                    // 成功后提交事务
+                    connection.commit();
+
+                } else {
+                    throw new SQLException("Failed to retrieve generated user ID.");
+                }
+            } catch (SQLException e) {
+                connection.rollback(); // 出错回滚
+                throw e;
             }
 
         } catch (SQLException e) {
             throw new RuntimeException("Failed to save user", e);
         }
     }
+
 
 }
 
