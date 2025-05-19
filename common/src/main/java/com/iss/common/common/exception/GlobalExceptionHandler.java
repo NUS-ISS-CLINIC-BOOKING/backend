@@ -1,4 +1,4 @@
-package com.iss.auth.common.exception;
+package com.iss.common.common.exception;
 
 import com.iss.auth.common.response.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;

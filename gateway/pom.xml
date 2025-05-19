@@ -35,6 +35,12 @@
             <artifactId>spring-security-oauth2-jose</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.iss</groupId>
+            <artifactId>common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
         <!-- Spring Security（用于 JwtDecoder 支持和身份验证过滤器） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
