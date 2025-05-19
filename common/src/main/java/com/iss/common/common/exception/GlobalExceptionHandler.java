@@ -1,6 +1,6 @@
 package com.iss.common.common.exception;
 
-import com.iss.auth.common.response.ErrorResponse;
+import com.iss.common.common.response.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
