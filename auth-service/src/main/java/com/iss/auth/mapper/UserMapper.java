@@ -19,7 +19,7 @@ public class UserMapper {
     }
 
     public void addUser(BigInteger userId, String name, Integer sex, String email, String password, int roleId) throws SQLException {
-        String sql = "INSERT INTO User (id, name, sex, email, password, role_id) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO user (id, name, sex, email, password, role_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, userId.longValue());
             statement.setString(2, name);
