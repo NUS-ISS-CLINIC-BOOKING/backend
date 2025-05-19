@@ -2,6 +2,9 @@ server:
   port: 8088  # 设置服务端口
 
 spring:
+  application:
+    name: gateway
+
   session:
     store-type: redis  # 使用 Redis 存储 Session
 
@@ -9,6 +12,7 @@ spring:
     name: SESSIONID    # 设置 Cookie 名称
     http-only: true     # 禁止客户端访问 Cookie
     secure: false       # 如果使用 HTTPS，设置为 true
+
   data:
     redis:
       host: localhost
@@ -21,12 +25,8 @@ cloud:
         uri: lb://clinic-service
         predicates:
           - Path=/api/clinic/**
-        filters:
-          - JwtSessionAuthenticationFilter  # 使用自定义的 JWT 校验过滤器
 
       - id: login_route
         uri: lb://login-service
         predicates:
           - Path=/api/auth/**
-        filters:
-          - JwtSessionAuthenticationFilter  # 使用自定义的 JWT 校验过滤器
