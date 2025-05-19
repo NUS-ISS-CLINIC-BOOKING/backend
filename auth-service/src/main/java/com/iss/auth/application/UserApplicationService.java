@@ -10,6 +10,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserApplicationService {
     public ModifyHealthInfoResult modifyHealthInfo(Long UserID, @Valid ModifyHealthInfoCommand request) {
-
+        return null;
     }
 }
