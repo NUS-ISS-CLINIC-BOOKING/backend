@@ -79,7 +79,7 @@ public class UserRepositoryImpl implements UserRepository {
 
                     //  如果不是病人，写入 clinic_staff_info 表
                     if (user.getUserType() != UserType.PATIENT) {
-                        String staffSql = "INSERT INTO clinic_staff_info (id, clinic_id, speciality) VALUES (?, ?, ?)";
+                        String staffSql = "INSERT INTO clinic_staff_info (id, clinic_id, specialty) VALUES (?, ?, ?)";
 
                         try (PreparedStatement staffStmt = connection.prepareStatement(staffSql)) {
                             staffStmt.setLong(1, generatedId);
