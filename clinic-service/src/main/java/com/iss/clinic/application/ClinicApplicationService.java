@@ -3,6 +3,7 @@ package com.iss.clinic.application;
 import java.util.ArrayList;
 import java.util.List;
 import com.iss.clinic.domain.entity.Clinic;
+import com.iss.clinic.dto.GetClinicInfoResult;
 import com.iss.clinic.dto.GetClinicResult;
 import com.iss.clinic.repository.ClinicRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,19 @@ public class ClinicApplicationService {
             }
             return new GetClinicResult(clinics, "get clinics success");
         } catch (Exception e) {
-            return new GetClinicResult(new ArrayList<>(), "get clinics failed");
+            return new GetClinicResult(new ArrayList<>(), e.getMessage());
+        }
+    }
+
+    public GetClinicInfoResult getClinicInfo(int clinicId) {
+        try {
+            Clinic clinic = (Clinic) clinicRepository.findById(clinicId).orElse(null);
+            if (clinic == null) {
+                return new GetClinicInfoResult(null, "clinic not found");
+            }
+            return new GetClinicInfoResult(clinic, "get clinic information success");
+        } catch (Exception e) {
+            return new GetClinicInfoResult(null, e.getMessage());
         }
     }
 }
