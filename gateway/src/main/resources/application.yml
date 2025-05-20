@@ -1,14 +1,16 @@
 server:
-  port: 8088  # Gateway ????
+  port: 8088
 
 spring:
+  main:
+    web-application-type: reactive
   application:
-    name: gateway  # ??????
+    name: gateway
 
   cloud:
     nacos:
       discovery:
-        server-addr: 127.0.0.1:8848  # Nacos ??????
+        server-addr: 127.0.0.1:8848
 
     gateway:
       routes:
