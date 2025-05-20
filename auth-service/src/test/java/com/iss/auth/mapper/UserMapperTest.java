@@ -47,7 +47,7 @@ class UserMapperTest {
         userMapper.addUser(userId, name, sex, email, password, roleId);
 
         // Then
-        String expectedSql = "INSERT INTO User (id, name, sex, email, password, role_id) VALUES (?, ?, ?, ?, ?, ?)";
+        String expectedSql = "INSERT INTO user (id, name, sex, email, password, role_id) VALUES (?, ?, ?, ?, ?, ?)";
         verify(connection).prepareStatement(expectedSql);
         verify(preparedStatement).setLong(1, 12335L);
         verify(preparedStatement).setString(2, "John Doe");
