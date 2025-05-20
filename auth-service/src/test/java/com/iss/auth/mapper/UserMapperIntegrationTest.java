@@ -47,7 +47,7 @@ public class UserMapperIntegrationTest {
     void cleanupTestData() throws SQLException {
         // 直接使用新连接清理数据（不再依赖 UserMapper 的连接）
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement ps = conn.prepareStatement("DELETE FROM User WHERE id = ?")) {
+             PreparedStatement ps = conn.prepareStatement("DELETE FROM user WHERE id = ?")) {
             ps.setLong(1, testUserId.longValue());
             ps.executeUpdate();
         }
@@ -56,7 +56,7 @@ public class UserMapperIntegrationTest {
 
     // 辅助方法：使用独立连接检查数据
     private boolean checkUserExists(BigInteger userId) throws SQLException {
-        String sql = "SELECT 1 FROM User WHERE id = ?";
+        String sql = "SELECT 1 FROM user WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, userId.longValue());

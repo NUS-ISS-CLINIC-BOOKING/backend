@@ -21,6 +21,12 @@
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.iss</groupId>
+      <artifactId>common</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+
     <!-- Nacos Discovery -->
     <dependency>
       <groupId>com.alibaba.cloud</groupId>
