@@ -115,8 +115,6 @@ public class UserRepositoryImpl implements UserRepository {
             throw new RuntimeException("Failed to save user", e);
         }
     }
-
-
 }
 
 
