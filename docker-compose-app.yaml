@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+  gateway:
+    build:
+      context: gateway
+      dockerfile: Dockerfile
+    container_name: gateway
+    ports:
+      - "8088:8088"
+    networks:
+      - clinic-booking
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+
+  auth-service:
+    build:
+      context: auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    networks:
+      - clinic-booking
+    ports:
+      - "8010:8010"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+
+  queue-service:
+    build:
+      context: queue-service
+      dockerfile: Dockerfile
+    container_name: queue-service
+    networks:
+      - clinic-booking
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+
+  patient-medicine-service:
+    build:
+      context: patient-medicine-service
+      dockerfile: Dockerfile
+    container_name: patient-medicine-service
+    networks:
+      - clinic-booking
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+
+  clinic-service:
+    build:
+      context: clinic-service
+      dockerfile: Dockerfile
+    container_name: clinic-service
+    networks:
+      - clinic-booking
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+
+networks:
+  clinic-booking:
+    external: true
