@@ -16,7 +16,6 @@ public class Clinic {
     private String phone;
     private Double longitude;
     private Double latitude;
-    private Integer staff_list_id;
 
 
     //TODO

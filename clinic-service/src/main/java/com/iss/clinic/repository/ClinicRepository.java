@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class ClinicRepository {
@@ -25,7 +26,7 @@ public class ClinicRepository {
     private DataSource dataSource; // 直接注入数据源
 
     public List<Clinic> findAll() {
-        String sql = "SELECT id, name, address, phone, longitude, latitude, staff_list_id FROM Clinic";
+        String sql = "SELECT id, name, address, phone, longitude, latitude FROM clinic";
 
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -38,7 +39,7 @@ public class ClinicRepository {
             return clinics;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Database query failed", e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -49,8 +50,31 @@ public class ClinicRepository {
                 rs.getString("address"),
                 rs.getString("phone"),
                 rs.getDouble("longitude"),
-                rs.getDouble("latitude"),
-                rs.getInt("staff_list_id")
+                rs.getDouble("latitude")
         );
+    }
+
+    public Optional<Object> findById(int clinicId) {
+        String sql = "SELECT id, name, address, phone, longitude, latitude FROM clinic WHERE id = ?";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            // 设置参数
+            ps.setInt(1, clinicId);
+
+            // 执行查询
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // 将结果映射到 Clinic 对象
+                    return Optional.of(mapRowToClinic(rs));
+                }
+            }
+        } catch (SQLException e) {
+            // 记录错误日志（实际项目中建议使用日志框架如SLF4J）
+            System.err.println("Error fetching clinic by ID: " + clinicId);
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
     }
 }
