@@ -1,32 +1,34 @@
 server:
-  port: 8088  # 设置服务端口
+  port: 8088
 
 spring:
+  main:
+    web-application-type: reactive
   application:
     name: gateway
 
-  session:
-    store-type: redis  # 使用 Redis 存储 Session
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos:8848
 
-  cookie:
-    name: SESSIONID    # 设置 Cookie 名称
-    http-only: true     # 禁止客户端访问 Cookie
-    secure: false       # 如果使用 HTTPS，设置为 true
+    gateway:
+      routes:
+        - id: clinic_route
+          uri: lb://clinic-service
+          predicates:
+            - Path=/api/clinic/**
 
-  data:
-    redis:
-      host: localhost
-      port: 6379
-
-cloud:
-  gateway:
-    routes:
-      - id: clinic_route
-        uri: lb://clinic-service
-        predicates:
-          - Path=/api/clinic/**
-
-      - id: login_route
-        uri: lb://login-service
-        predicates:
-          - Path=/api/auth/**
+        - id: login_route
+          uri: lb://login-service
+          predicates:
+            - Path=/api/auth/**
+#      routes:
+#        - id: clinic_route
+#          uri: lb://clinic-service  # ? ?? Nacos ?????????
+#          predicates:
+#            - Path=/clinic/**       # ???? /clinic ?????
+#        - id: login_route
+#          uri: lb://login-service  # ? ?? Nacos ?????????
+#          predicates:
+#            - Path=/login/**       # ???? /clinic ?????
