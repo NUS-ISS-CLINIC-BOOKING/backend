@@ -42,11 +42,11 @@ jobs:
 
       - name: Build Docker Images (Parallel)
         run: |
-          docker build -t image-a -f auth-service/Dockerfile auth-service/ &
-          docker build -t image-b -f clinic-service/Dockerfile clinic-service/ &
-          docker build -t image-c -f queue-service/Dockerfile queue-service/ &
-          docker build -t image-d -f patient-medicine-service/Dockerfile patient-medicine-service/ &
-          docker build -t image-e -f gateway/Dockerfile gateway/ &
+          docker build -t auth-service -f auth-service/Dockerfile auth-service/ &
+          docker build -t clinic-service -f clinic-service/Dockerfile clinic-service/ &
+          docker build -t queue-service-f queue-service/Dockerfile queue-service/ &
+          docker build -t patient-medicine-service -f patient-medicine-service/Dockerfile patient-medicine-service/ &
+          docker build -t gateway -f gateway/Dockerfile gateway/ &
           wait
   
       
