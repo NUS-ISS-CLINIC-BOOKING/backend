@@ -1,12 +1,10 @@
-name: Java CI with Maven, MySQL, Redis Setup, and Snyk Check
+name: CI
 
 on:
   push:
-    branches:
-      - "main"
+    branches: ["main"]
   pull_request:
-    branches:
-      - "main"
+    branches: ["main"]
 
 defaults:
   run:
@@ -16,8 +14,6 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      build-success: ${{ steps.build-step.outcome }}
 
     steps:
       - name: Checkout Code
@@ -40,15 +36,38 @@ jobs:
         id: build-step
         run: mvn clean install
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Configure Docker to use GCP Artifact Registry
+        run: gcloud auth configure-docker ${{ secrets.GCP_ARTIFACT_REGION }}-docker.pkg.dev
+
       - name: Build Docker Images (Parallel)
         run: |
-          docker build -t auth-service -f auth-service/Dockerfile auth-service/ &
-          docker build -t clinic-service -f clinic-service/Dockerfile clinic-service/ &
-          docker build -t queue-service-f queue-service/Dockerfile queue-service/ &
-          docker build -t patient-medicine-service -f patient-medicine-service/Dockerfile patient-medicine-service/ &
-          docker build -t gateway -f gateway/Dockerfile gateway/ &
-          wait
-  
-      
-            
+          REGION=${{ secrets.GCP_ARTIFACT_REGION }}
+          PROJECT=${{ secrets.GCP_PROJECT_ID }}
+          REPO=${{ secrets.GCP_ARTIFACT_REPO }}
+          TAG=${{ github.sha }}
 
+          docker build -t $REGION-docker.pkg.dev/$PROJECT/$REPO/auth-service:$TAG -f auth-service/Dockerfile auth-service/ &
+          docker build -t $REGION-docker.pkg.dev/$PROJECT/$REPO/clinic-service:$TAG -f clinic-service/Dockerfile clinic-service/ &
+          docker build -t $REGION-docker.pkg.dev/$PROJECT/$REPO/queue-service:$TAG -f queue-service/Dockerfile queue-service/ &
+          docker build -t $REGION-docker.pkg.dev/$PROJECT/$REPO/patient-medicine-service:$TAG -f patient-medicine-service/Dockerfile patient-medicine-service/ &
+          docker build -t $REGION-docker.pkg.dev/$PROJECT/$REPO/gateway:$TAG -f gateway/Dockerfile gateway/ &
+          wait
+
+      - name: Push Docker Images to Artifact Registry (Parallel)
+        run: |
+          REGION=${{ secrets.GCP_ARTIFACT_REGION }}
+          PROJECT=${{ secrets.GCP_PROJECT_ID }}
+          REPO=${{ secrets.GCP_ARTIFACT_REPO }}
+          TAG=${{ github.sha }}
+
+          docker push $REGION-docker.pkg.dev/$PROJECT/$REPO/auth-service:$TAG &
+          docker push $REGION-docker.pkg.dev/$PROJECT/$REPO/clinic-service:$TAG &
+          docker push $REGION-docker.pkg.dev/$PROJECT/$REPO/queue-service:$TAG &
+          docker push $REGION-docker.pkg.dev/$PROJECT/$REPO/patient-medicine-service:$TAG &
+          docker push $REGION-docker.pkg.dev/$PROJECT/$REPO/gateway:$TAG &
+          wait
