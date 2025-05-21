@@ -1,4 +1,4 @@
-package com.iss.auth.infrastructure.jwt;
+package com.iss.auth.utils.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

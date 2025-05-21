@@ -5,6 +5,21 @@ spring:
   application:
     name: login-service
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: agelessbaby89@gmail.com
+    password: euqqyzlxdrugvpne
+    protocol: smtp
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+  data:
+    redis:
+      host: 101.42.116.10
+      password: Root123456@
+
   datasource:
     url: jdbc:mysql://101.42.116.10:3306/clinic_booking?serverTimezone=Asia/Shanghai&useSSL=false
     username: root
