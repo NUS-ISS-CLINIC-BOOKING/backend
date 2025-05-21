@@ -1,0 +1,54 @@
+name: Java CI with Maven, MySQL, Redis Setup, and Snyk Check
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+
+defaults:
+  run:
+    shell: bash
+    working-directory: .
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      build-success: ${{ steps.build-step.outcome }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Shutdown system MySQL service (if running)
+        run: sudo service mysql stop
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Install Maven
+        run: sudo apt-get update && sudo apt-get install -y maven
+
+      - name: Build with Maven
+        id: build-step
+        run: mvn clean install
+
+      - name: Build Docker Images (Parallel)
+        run: |
+          docker build -t image-a -f auth-service/Dockerfile auth-service/ &
+          docker build -t image-b -f clinic-service/Dockerfile clinic-service/ &
+          docker build -t image-c -f queue-service/Dockerfile queue-service/ &
+          docker build -t image-d -f patient-medicine-service/Dockerfile patient-medicine-service/ &
+          docker build -t image-e -f gateway/Dockerfile gateway/ &
+          wait
+  
+      
+            
+
