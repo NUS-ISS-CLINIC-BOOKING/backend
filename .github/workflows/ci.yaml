@@ -1,4 +1,4 @@
-name: CI
+name: CI with Maven + Docker + GCP Artifact Registry
 
 on:
   push:
@@ -42,32 +42,41 @@ jobs:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
       - name: Configure Docker to use GCP Artifact Registry
-        run: gcloud auth configure-docker ${{ secrets.GCP_ARTIFACT_REGION }}-docker.pkg.dev
+        run: gcloud auth configure-docker $(echo ${{ secrets.GCP_ARTIFACT_REPO }} | cut -d/ -f1)
 
-      - name: Build Docker Images (Parallel)
+      - name: Build and Tag Docker Images
         run: |
-          REGION=${{ secrets.GCP_ARTIFACT_REGION }}
-          PROJECT=${{ secrets.GCP_PROJECT_ID }}
           REPO=${{ secrets.GCP_ARTIFACT_REPO }}
           TAG=${{ github.sha }}
 
-          docker build -t $REGION-docker.pkg.dev/$PROJECT/$REPO/auth-service:$TAG -f auth-service/Dockerfile auth-service/ &
-          docker build -t $REGION-docker.pkg.dev/$PROJECT/$REPO/clinic-service:$TAG -f clinic-service/Dockerfile clinic-service/ &
-          docker build -t $REGION-docker.pkg.dev/$PROJECT/$REPO/queue-service:$TAG -f queue-service/Dockerfile queue-service/ &
-          docker build -t $REGION-docker.pkg.dev/$PROJECT/$REPO/patient-medicine-service:$TAG -f patient-medicine-service/Dockerfile patient-medicine-service/ &
-          docker build -t $REGION-docker.pkg.dev/$PROJECT/$REPO/gateway:$TAG -f gateway/Dockerfile gateway/ &
+          # Build images with both :latest and :<sha> tags
+          build_push() {
+            SERVICE=$1
+            docker build -t $REPO/$SERVICE:$TAG -t $REPO/$SERVICE:latest -f $SERVICE/Dockerfile $SERVICE/
+          }
+
+          build_push auth-service &
+          build_push clinic-service &
+          build_push queue-service &
+          build_push patient-medicine-service &
+          build_push gateway &
           wait
 
-      - name: Push Docker Images to Artifact Registry (Parallel)
+      - name: Push Docker Images to GCP Artifact Registry
         run: |
-          REGION=${{ secrets.GCP_ARTIFACT_REGION }}
-          PROJECT=${{ secrets.GCP_PROJECT_ID }}
           REPO=${{ secrets.GCP_ARTIFACT_REPO }}
           TAG=${{ github.sha }}
 
-          docker push $REGION-docker.pkg.dev/$PROJECT/$REPO/auth-service:$TAG &
-          docker push $REGION-docker.pkg.dev/$PROJECT/$REPO/clinic-service:$TAG &
-          docker push $REGION-docker.pkg.dev/$PROJECT/$REPO/queue-service:$TAG &
-          docker push $REGION-docker.pkg.dev/$PROJECT/$REPO/patient-medicine-service:$TAG &
-          docker push $REGION-docker.pkg.dev/$PROJECT/$REPO/gateway:$TAG &
+          # Push both tags
+          push_image() {
+            SERVICE=$1
+            docker push $REPO/$SERVICE:$TAG
+            docker push $REPO/$SERVICE:latest
+          }
+
+          push_image auth-service &
+          push_image clinic-service &
+          push_image queue-service &
+          push_image patient-medicine-service &
+          push_image gateway &
           wait
