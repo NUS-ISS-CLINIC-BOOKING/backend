@@ -29,4 +29,10 @@ public class QueueController {
                 clinicApplicationService.getDoctorQueueByDoctorId(doctorId, date)
         );
     }
+
+    @GetMapping("/specialtyDoctor/{specialtyId}")
+    public SuccessResponse<GetDoctorsResult> getDoctorsBySpecialtyId(@PathVariable String specialtyId) {
+        return new SuccessResponse<>(clinicApplicationService.getDoctorsBySpecialty(specialtyId));
+    }
+
 }
