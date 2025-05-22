@@ -1,4 +1,4 @@
-name: CI with Maven + Docker + GCP Artifact Registry
+name: CI gateway
 
 on:
   workflow_dispatch:
