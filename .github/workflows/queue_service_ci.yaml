@@ -3,8 +3,14 @@ name: CI with Maven + Docker + GCP Artifact Registry
 on:
   push:
     branches: ["main"]
+    paths:
+      - 'gateway/**'
+      - '.github/workflows/queue_service_ci.yaml'
   pull_request:
     branches: ["main"]
+    paths:
+      - 'gateway/**'
+      - '.github/workflows/queue_service_ci.yaml'
 
 defaults:
   run:
@@ -29,12 +35,10 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Install Maven
-        run: sudo apt-get update && sudo apt-get install -y maven
 
       - name: Build with Maven
         id: build-step
-        run: mvn clean install
+        run: mvn -pl patient-medicine-service -am clean install
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -55,11 +59,7 @@ jobs:
             docker build -t $REPO/$SERVICE:$TAG -t $REPO/$SERVICE:latest -f $SERVICE/Dockerfile $SERVICE/
           }
 
-          build_push auth-service &
-          build_push clinic-service &
           build_push queue-service &
-          build_push patient-medicine-service &
-          build_push gateway &
           wait
 
       - name: Push Docker Images to GCP Artifact Registry
@@ -74,9 +74,5 @@ jobs:
             docker push $REPO/$SERVICE:latest
           }
 
-          push_image auth-service &
-          push_image clinic-service &
           push_image queue-service &
-          push_image patient-medicine-service &
-          push_image gateway &
           wait
