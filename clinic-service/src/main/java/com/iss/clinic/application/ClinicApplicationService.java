@@ -3,8 +3,10 @@ package com.iss.clinic.application;
 import java.util.ArrayList;
 import java.util.List;
 import com.iss.clinic.domain.entity.Clinic;
+import com.iss.clinic.domain.entity.Specialty;
 import com.iss.clinic.dto.GetClinicInfoResult;
 import com.iss.clinic.dto.GetClinicResult;
+import com.iss.clinic.dto.GetSpecialtyListResult;
 import com.iss.clinic.repository.ClinicRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,18 @@ public class ClinicApplicationService {
             return new GetClinicInfoResult(clinic, "get clinic information success");
         } catch (Exception e) {
             return new GetClinicInfoResult(null, e.getMessage());
+        }
+    }
+
+    public GetSpecialtyListResult getClinicSpecialtyList(int clinicId) {
+        try {
+            List<Specialty> specialtyList = clinicRepository.findSpecialtyByClinicId(clinicId);
+            if (specialtyList.isEmpty()) {
+                return new GetSpecialtyListResult(new ArrayList<>(), "no specialties found");
+            }
+            return new GetSpecialtyListResult(specialtyList, "get specialties success");
+        } catch (Exception e) {
+            return new GetSpecialtyListResult(new ArrayList<>(), e.getMessage());
         }
     }
 }
