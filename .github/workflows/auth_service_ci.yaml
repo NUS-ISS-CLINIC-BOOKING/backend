@@ -23,12 +23,14 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.export.outputs.tag }}
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Shutdown system MySQL service (if running)
+      - name: Shutdown system MySQL service
         run: sudo service mysql stop
 
       - name: Set up JDK 17
@@ -38,44 +40,46 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-
       - name: Build with Maven
-        id: build-step
         run: mvn -pl auth-service -am clean install
+
+      - name: Build Docker Image (auth-service)
+        run: |
+          REPO=${{ secrets.GCP_ARTIFACT_REPO }}
+          TAG=${{ github.sha }}
+          docker build -t $REPO/auth-service:$TAG -t $REPO/auth-service:latest -f auth-service/Dockerfile auth-service/
+
+      - name: Export tag for downstream job
+        id: export
+        run: echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+
+  push:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      - name: Configure Docker to use GCP Artifact Registry
-        run: gcloud auth configure-docker $(echo ${{ secrets.GCP_ARTIFACT_REPO }} | cut -d/ -f1)
+      - name: Configure Docker for GCP Artifact Registry
+        run: |
+          REGION=$(echo "${{ secrets.GCP_ARTIFACT_REPO }}" | cut -d/ -f1)
+          gcloud auth configure-docker $REGION
 
-      - name: Build and Tag Docker Images
+      - name: Rebuild Docker Image (if needed)
         run: |
           REPO=${{ secrets.GCP_ARTIFACT_REPO }}
-          TAG=${{ github.sha }}
+          TAG=${{ needs.build.outputs.tag }}
+          docker build -t $REPO/auth-service:$TAG -t $REPO/auth-service:latest -f auth-service/Dockerfile auth-service/
 
-          # Build images with both :latest and :<sha> tags
-          build_push() {
-            SERVICE=$1
-            docker build -t $REPO/$SERVICE:$TAG -t $REPO/$SERVICE:latest -f $SERVICE/Dockerfile $SERVICE/
-          }
-
-          build_push auth-service &
-          wait
-
-      - name: Push Docker Images to GCP Artifact Registry
+      - name: Push Docker Image
         run: |
           REPO=${{ secrets.GCP_ARTIFACT_REPO }}
-          TAG=${{ github.sha }}
-
-          # Push both tags
-          push_image() {
-            SERVICE=$1
-            docker push $REPO/$SERVICE:$TAG
-            docker push $REPO/$SERVICE:latest
-          }
-
-          push_image auth-service &
-          wait
+          TAG=${{ needs.build.outputs.tag }}
+          docker push $REPO/auth-service:$TAG
+          docker push $REPO/auth-service:latest
