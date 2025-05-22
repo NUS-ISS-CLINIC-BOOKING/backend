@@ -4,6 +4,7 @@ import com.iss.clinic.application.ClinicApplicationService;
 import com.iss.clinic.common.response.SuccessResponse;
 import com.iss.clinic.dto.GetClinicInfoResult;
 import com.iss.clinic.dto.GetClinicResult;
+import com.iss.clinic.dto.GetSpecialtyListResult;
 import com.iss.clinic.feignService.LoginFeignService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,5 +44,10 @@ public class ClinicController {
     @GetMapping("/location/{clinicId}")
     public SuccessResponse<GetClinicInfoResult> getClinicLocation(@PathVariable int clinicId) {
         return new SuccessResponse<>(clinicApplicationService.getClinicInfo(clinicId));
+    }
+
+    @GetMapping("/specialtyList/{clinicId}")
+    public SuccessResponse<GetSpecialtyListResult> getClinicSpecialtyList(@PathVariable int clinicId) {
+        return new SuccessResponse<>(clinicApplicationService.getClinicSpecialtyList(clinicId));
     }
 }
