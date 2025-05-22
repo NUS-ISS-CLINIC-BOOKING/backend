@@ -2,7 +2,18 @@ name: CI auth-service
 
 on:
   workflow_dispatch:
-
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'gateway/**'
+      - '.github/workflows/auth_service_ci.yaml'
+      - 'common/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'gateway/**'
+      - '.github/workflows/auth_service_ci.yaml'
+      - 'common/**'
 defaults:
   run:
     shell: bash
@@ -82,4 +93,7 @@ jobs:
         run: |
           REPO=${{ secrets.GCP_ARTIFACT_REPO }}
           TAG=${{ needs.build.outputs.tag }}
+
           docker push $REPO/auth-service:$TAG
+          docker tag $REPO/auth-service:$TAG $REPO/auth-service:latest
+          docker push $REPO/auth-service:latest
