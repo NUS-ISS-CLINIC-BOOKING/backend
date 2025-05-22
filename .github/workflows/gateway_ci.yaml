@@ -24,6 +24,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    outputs:
+      tag: ${{ steps.export-tag.outputs.tag }}
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -38,44 +41,62 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-
       - name: Build with Maven
-        id: build-step
         run: mvn -pl gateway -am clean install
+
+      - name: Build Docker Image
+        run: |
+          REPO=${{ secrets.GCP_ARTIFACT_REPO }}
+          TAG=${{ github.sha }}
+          docker build -t $REPO/gateway:$TAG -f gateway/Dockerfile gateway/
+
+      - name: Save Docker Image to TAR
+        run: |
+          REPO=${{ secrets.GCP_ARTIFACT_REPO }}
+          TAG=${{ github.sha }}
+          docker save $REPO/gateway:$TAG -o gateway-image.tar
+
+      - name: Upload Docker Image Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gateway-image
+          path: gateway-image.tar
+
+      - name: Export Tag for Push Job
+        id: export-tag
+        run: echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+
+  push:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Docker Image Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: gateway-image
+          path: .
+
+      - name: Load Docker Image
+        run: docker load -i gateway-image.tar
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      - name: Configure Docker to use GCP Artifact Registry
-        run: gcloud auth configure-docker $(echo ${{ secrets.GCP_ARTIFACT_REPO }} | cut -d/ -f1)
+      - name: Configure Docker for GCP
+        run: |
+          REGION=$(echo "${{ secrets.GCP_ARTIFACT_REPO }}" | cut -d/ -f1)
+          gcloud auth configure-docker $REGION
 
-      - name: Build and Tag Docker Images
+      - name: Push Docker Image to GCP
         run: |
           REPO=${{ secrets.GCP_ARTIFACT_REPO }}
-          TAG=${{ github.sha }}
-
-          # Build images with both :latest and :<sha> tags
-          build_push() {
-            SERVICE=$1
-            docker build -t $REPO/$SERVICE:$TAG -t $REPO/$SERVICE:latest -f $SERVICE/Dockerfile $SERVICE/
-          }
-
-          build_push gateway &
-          wait
-
-      - name: Push Docker Images to GCP Artifact Registry
-        run: |
-          REPO=${{ secrets.GCP_ARTIFACT_REPO }}
-          TAG=${{ github.sha }}
-
-          # Push both tags
-          push_image() {
-            SERVICE=$1
-            docker push $REPO/$SERVICE:$TAG
-            docker push $REPO/$SERVICE:latest
-          }
-
-          push_image gateway &
-          wait
+          TAG=${{ needs.build.outputs.tag }}
+          docker push $REPO/gateway:$TAG
+          docker tag $REPO/gateway:$TAG $REPO/gateway:latest
+          docker push $REPO/gateway:latest
