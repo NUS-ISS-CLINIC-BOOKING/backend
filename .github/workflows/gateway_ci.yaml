@@ -1,16 +1,19 @@
 name: CI with Maven + Docker + GCP Artifact Registry
 
 on:
+  workflow_dispatch:
   push:
     branches: ["main"]
     paths:
       - 'gateway/**'
       - '.github/workflows/gateway_ci.yaml'
+      - 'common/**'
   pull_request:
     branches: ["main"]
     paths:
       - 'gateway/**'
       - '.github/workflows/gateway_ci.yaml'
+      - 'common/**'
 
 defaults:
   run:
