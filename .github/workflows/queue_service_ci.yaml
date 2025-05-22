@@ -41,7 +41,7 @@ jobs:
 
       - name: Build with Maven
         id: build-step
-        run: mvn -pl patient-medicine-service -am clean install
+        run: mvn -pl queue-service -am clean install
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
