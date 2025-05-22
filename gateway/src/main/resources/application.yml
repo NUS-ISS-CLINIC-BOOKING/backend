@@ -23,12 +23,13 @@ spring:
           uri: lb://login-service
           predicates:
             - Path=/api/auth/**
-#      routes:
-#        - id: clinic_route
-#          uri: lb://clinic-service  # ? ?? Nacos ?????????
-#          predicates:
-#            - Path=/clinic/**       # ???? /clinic ?????
-#        - id: login_route
-#          uri: lb://login-service  # ? ?? Nacos ?????????
-#          predicates:
-#            - Path=/login/**       # ???? /clinic ?????
+
+        - id: patient_medicine_route
+          uri: lb://patient-medicine-service
+          predicates:
+            - Path=/patient_medicine/**
+
+        - id: queue_route
+          uri: lb://queue-service
+          predicates:
+            - Path=/api/queue/**
