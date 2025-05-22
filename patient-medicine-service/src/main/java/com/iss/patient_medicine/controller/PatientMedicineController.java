@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/patient_medicine")
+@RequestMapping("/api/patient_medicine")
 public class PatientMedicineController {
     @GetMapping("/status")
     public String getPatientMedicineStatus() {

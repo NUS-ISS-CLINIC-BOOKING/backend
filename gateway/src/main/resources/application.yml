@@ -24,12 +24,13 @@ spring:
           predicates:
             - Path=/api/auth/**
 
-        - id: patient_medicine_route
-          uri: lb://patient-medicine-service
-          predicates:
-            - Path=/patient_medicine/**
-
         - id: queue_route
           uri: lb://queue-service
           predicates:
             - Path=/api/queue/**
+
+        - id: patient_medicine_route
+          uri: lb://patient-medicine-service
+          predicates:
+            - Path=/api/patient_medicine/**
+
