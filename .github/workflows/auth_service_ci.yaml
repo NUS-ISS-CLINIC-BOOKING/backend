@@ -3,17 +3,18 @@ name: CI auth-service
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - 'gateway/**'
       - '.github/workflows/auth_service_ci.yaml'
       - 'common/**'
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - 'gateway/**'
       - '.github/workflows/auth_service_ci.yaml'
       - 'common/**'
+
 defaults:
   run:
     shell: bash
@@ -41,17 +42,13 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          REPO=${{ secrets.GCP_ARTIFACT_REPO }}
           TAG=${{ github.sha }}
-          docker build -t $REPO/auth-service:$TAG -f auth-service/Dockerfile auth-service/
+          docker build -t auth-service:ci-temp -t ${{ secrets.GCP_ARTIFACT_REPO }}/auth-service:$TAG -f auth-service/Dockerfile auth-service/
 
-      - name: Save Docker Image to file
-        run: |
-          REPO=${{ secrets.GCP_ARTIFACT_REPO }}
-          TAG=${{ github.sha }}
-          docker save $REPO/auth-service:$TAG -o auth-service-image.tar
+      - name: Save Docker Image to TAR
+        run: docker save auth-service:ci-temp -o auth-service-image.tar
 
-      - name: Upload Docker image artifact
+      - name: Upload Docker Image Artifact
         uses: actions/upload-artifact@v4
         with:
           name: auth-service-image
@@ -69,15 +66,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Download Docker image artifact
+      - name: Download Docker Image Artifact
         uses: actions/download-artifact@v4
         with:
           name: auth-service-image
           path: .
 
-      - name: Load Docker image from file
-        run: |
-          docker load -i auth-service-image.tar
+      - name: Load Docker Image from file
+        run: docker load -i auth-service-image.tar
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -92,18 +88,18 @@ jobs:
       - name: Push Docker Image to GCP
         run: |
           REPO=${{ secrets.GCP_ARTIFACT_REPO }}
+          RAW_TAG=${{ needs.build.outputs.tag }}
 
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            TAG=${{ needs.build.outputs.tag }}-pr
+            TAG=${RAW_TAG}-pr
           else
-            TAG=${{ needs.build.outputs.tag }}
+            TAG=${RAW_TAG}
           fi
 
-          docker tag $REPO/queue-service:${{ needs.build.outputs.tag }} $REPO/queue-service:$TAG
-          docker push $REPO/queue-service:$TAG
+          docker tag auth-service:ci-temp $REPO/auth-service:$TAG
+          docker push $REPO/auth-service:$TAG
 
           if [[ "${{ github.event_name }}" != "pull_request" ]]; then
-            docker tag $REPO/queue-service:$TAG $REPO/queue-service:latest
-            docker push $REPO/queue-service:latest
+            docker tag $REPO/auth-service:$TAG $REPO/auth-service:latest
+            docker push $REPO/auth-service:latest
           fi
-      

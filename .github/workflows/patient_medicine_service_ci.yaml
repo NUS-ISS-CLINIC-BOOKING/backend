@@ -23,7 +23,6 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     outputs:
       tag: ${{ steps.export-tag.outputs.tag }}
 
@@ -46,15 +45,11 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          REPO=${{ secrets.GCP_ARTIFACT_REPO }}
           TAG=${{ github.sha }}
-          docker build -t $REPO/patient-medicine-service:$TAG -f patient-medicine-service/Dockerfile patient-medicine-service/
+          docker build -t patient-medicine-service:ci-temp -t ${{ secrets.GCP_ARTIFACT_REPO }}/patient-medicine-service:$TAG -f patient-medicine-service/Dockerfile patient-medicine-service/
 
       - name: Save Docker Image to TAR
-        run: |
-          REPO=${{ secrets.GCP_ARTIFACT_REPO }}
-          TAG=${{ github.sha }}
-          docker save $REPO/patient-medicine-service:$TAG -o patient-medicine-service.tar
+        run: docker save patient-medicine-service:ci-temp -o patient-medicine-service.tar
 
       - name: Upload Docker Image Artifact
         uses: actions/upload-artifact@v4
@@ -96,18 +91,18 @@ jobs:
       - name: Push Docker Image to GCP
         run: |
           REPO=${{ secrets.GCP_ARTIFACT_REPO }}
+          RAW_TAG=${{ needs.build.outputs.tag }}
 
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            TAG=${{ needs.build.outputs.tag }}-pr
+            TAG=${RAW_TAG}-pr
           else
-            TAG=${{ needs.build.outputs.tag }}
+            TAG=${RAW_TAG}
           fi
 
-          docker tag $REPO/queue-service:${{ needs.build.outputs.tag }} $REPO/queue-service:$TAG
-          docker push $REPO/queue-service:$TAG
+          docker tag patient-medicine-service:ci-temp $REPO/patient-medicine-service:$TAG
+          docker push $REPO/patient-medicine-service:$TAG
 
           if [[ "${{ github.event_name }}" != "pull_request" ]]; then
-            docker tag $REPO/queue-service:$TAG $REPO/queue-service:latest
-            docker push $REPO/queue-service:latest
+            docker tag $REPO/patient-medicine-service:$TAG $REPO/patient-medicine-service:latest
+            docker push $REPO/patient-medicine-service:latest
           fi
-      
