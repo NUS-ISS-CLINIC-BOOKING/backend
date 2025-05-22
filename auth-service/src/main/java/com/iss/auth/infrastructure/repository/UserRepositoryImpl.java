@@ -115,6 +115,30 @@ public class UserRepositoryImpl implements UserRepository {
             throw new RuntimeException("Failed to save user", e);
         }
     }
+
+
+    @Override
+    public void ModifyUserHealthInfo(long userId, String healthInfo) {
+        String sql = """
+            INSERT INTO health_info (patient_id, allergy)
+            VALUES (?, ?)
+            ON DUPLICATE KEY UPDATE
+              allergy = VALUES(allergy)
+        """;
+
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
+                statement.setLong(1, userId);
+                statement.setString(2, healthInfo);
+                statement.execute();
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
 
 
