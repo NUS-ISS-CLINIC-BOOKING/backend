@@ -2,36 +2,21 @@ name: CI auth-service
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["main"]
-    paths:
-      - 'auth-service/**'
-      - '.github/workflows/auth_service_ci.yaml'
-      - 'common/**'
-  pull_request:
-    branches: ["main"]
-    paths:
-      - 'auth-service/**'
-      - '.github/workflows/auth_service_ci.yaml'
-      - 'common/**'
 
 defaults:
   run:
     shell: bash
-    working-directory: .
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     outputs:
-      tag: ${{ steps.export.outputs.tag }}
+      tag: ${{ steps.meta.outputs.tag }}
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Shutdown system MySQL service
-        run: sudo service mysql stop
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -43,14 +28,26 @@ jobs:
       - name: Build with Maven
         run: mvn -pl auth-service -am clean install
 
-      - name: Build Docker Image (auth-service)
+      - name: Build Docker Image
         run: |
           REPO=${{ secrets.GCP_ARTIFACT_REPO }}
           TAG=${{ github.sha }}
-          docker build -t $REPO/auth-service:$TAG -t $REPO/auth-service:latest -f auth-service/Dockerfile auth-service/
+          docker build -t $REPO/auth-service:$TAG -f auth-service/Dockerfile auth-service/
 
-      - name: Export tag for downstream job
-        id: export
+      - name: Save Docker Image to file
+        run: |
+          REPO=${{ secrets.GCP_ARTIFACT_REPO }}
+          TAG=${{ github.sha }}
+          docker save $REPO/auth-service:$TAG -o auth-service-image.tar
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: auth-service-image
+          path: auth-service-image.tar
+
+      - name: Export Docker tag
+        id: meta
         run: echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
 
   push:
@@ -61,25 +58,28 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: auth-service-image
+          path: .
+
+      - name: Load Docker image from file
+        run: |
+          docker load -i auth-service-image.tar
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
-      - name: Configure Docker for GCP Artifact Registry
+      - name: Configure Docker for GCP
         run: |
           REGION=$(echo "${{ secrets.GCP_ARTIFACT_REPO }}" | cut -d/ -f1)
           gcloud auth configure-docker $REGION
-
-      - name: Rebuild Docker Image (if needed)
-        run: |
-          REPO=${{ secrets.GCP_ARTIFACT_REPO }}
-          TAG=${{ needs.build.outputs.tag }}
-          docker build -t $REPO/auth-service:$TAG -t $REPO/auth-service:latest -f auth-service/Dockerfile auth-service/
 
       - name: Push Docker Image
         run: |
           REPO=${{ secrets.GCP_ARTIFACT_REPO }}
           TAG=${{ needs.build.outputs.tag }}
           docker push $REPO/auth-service:$TAG
-          docker push $REPO/auth-service:latest
