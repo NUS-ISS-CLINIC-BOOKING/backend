@@ -96,7 +96,18 @@ jobs:
       - name: Push Docker Image to GCP
         run: |
           REPO=${{ secrets.GCP_ARTIFACT_REPO }}
-          TAG=${{ needs.build.outputs.tag }}
-          docker push $REPO/gateway:$TAG
-          docker tag $REPO/gateway:$TAG $REPO/gateway:latest
-          docker push $REPO/gateway:latest
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            TAG=${{ needs.build.outputs.tag }}-pr
+          else
+            TAG=${{ needs.build.outputs.tag }}
+          fi
+
+          docker tag $REPO/queue-service:${{ needs.build.outputs.tag }} $REPO/queue-service:$TAG
+          docker push $REPO/queue-service:$TAG
+
+          if [[ "${{ github.event_name }}" != "pull_request" ]]; then
+            docker tag $REPO/queue-service:$TAG $REPO/queue-service:latest
+            docker push $REPO/queue-service:latest
+          fi
+      
