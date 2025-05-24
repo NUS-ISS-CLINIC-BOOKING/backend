@@ -68,3 +68,4 @@ services:
 
 networks:
   clinic-booking:
+    external: true
