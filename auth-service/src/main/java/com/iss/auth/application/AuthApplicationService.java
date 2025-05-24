@@ -8,7 +8,7 @@ import com.iss.auth.dto.LoginCommand;
 import com.iss.auth.dto.LoginResult;
 import com.iss.auth.dto.RegisterResult;
 import com.iss.auth.infrastructure.email.EmailService;
-import com.iss.auth.utils.jwt.JwtTokenProvider;
+import com.iss.common.jwt.JwtTokenProvider;
 import com.iss.auth.dto.RegisterCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 
-import java.time.Duration;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
-
-import static com.iss.auth.utils.mfa.MfaUtil.generateMfaCode;
 
 /**
  * 应用服务，负责登录流程编排
@@ -72,9 +69,9 @@ public class AuthApplicationService {
         handler.handle(user);
 
         // generate MFA code
-        String code = generateMfaCode();
-        redisTemplate.opsForValue().set("mfa_code:" + user.getId(), code, Duration.ofMinutes(5));
-        emailService.send(user.getEmail(), "Your MFA Code", "Your code is: " + code);
+//        String code = generateMfaCode();
+//        redisTemplate.opsForValue().set("mfa_code:" + user.getId(), code, Duration.ofMinutes(5));
+//        emailService.send(user.getEmail(), "Your MFA Code", "Your code is: " + code);
 
         String token = jwtTokenProvider.generateToken(user.getId(), user.getUserType().name());
         return new LoginResult(user.getId(), token);

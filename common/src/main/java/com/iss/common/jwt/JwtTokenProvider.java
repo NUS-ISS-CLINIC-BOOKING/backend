@@ -1,4 +1,4 @@
-package com.iss.auth.utils.jwt;
+package com.iss.common.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -6,6 +6,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
@@ -17,7 +18,8 @@ public class JwtTokenProvider {
 
     @PostConstruct
     public void init() {
-        this.SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        byte[] keyBytes = "MySuperSecretKey1234567890MySuperSecretKey1234567890".getBytes(StandardCharsets.UTF_8);
+        this.SECRET_KEY = Keys.hmacShaKeyFor(keyBytes);
     }
 
     // 生成 token
@@ -49,12 +51,19 @@ public class JwtTokenProvider {
             parseClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
-            System.out.println("Token expired");
-        } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
-            System.out.println("Invalid token: " + e.getMessage());
+            System.out.println("Token expired: " + e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            System.out.println("Unsupported token: " + e.getMessage());
+        } catch (MalformedJwtException e) {
+            System.out.println("Malformed token: " + e.getMessage());
+        } catch (SignatureException e) {
+            System.out.println("Invalid signature: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Empty token: " + e.getMessage());
         }
         return false;
     }
+
 
     // 内部封装解析逻辑
     private Claims parseClaims(String token) {
