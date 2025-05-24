@@ -12,6 +12,7 @@ services:
       - clinic-booking
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+    restart: always
 
   auth-service:
     build:
@@ -24,6 +25,7 @@ services:
       - "8010:8010"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+    restart: always
 
   queue-service:
     build:
@@ -36,6 +38,7 @@ services:
       - "8082:8082"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+    restart: always
 
   patient-medicine-service:
     build:
@@ -48,6 +51,7 @@ services:
       - "8084:8084"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+    restart: always
 
   clinic-service:
     build:
@@ -60,7 +64,7 @@ services:
       - "8083:8083"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+    restart: always
 
 networks:
   clinic-booking:
-    external: true
