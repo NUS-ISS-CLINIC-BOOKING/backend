@@ -19,4 +19,4 @@ services:
 
 networks:
   clinic-booking:
-    driver: bridge
+    external: true
