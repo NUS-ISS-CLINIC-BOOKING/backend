@@ -36,3 +36,8 @@ spring:
           predicates:
             - Path=/api/patient_medicine/**
 
+jwt:
+  whitelist:
+    - /api/auth/**
+
+

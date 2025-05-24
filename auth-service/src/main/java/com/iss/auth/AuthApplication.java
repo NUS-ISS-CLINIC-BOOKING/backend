@@ -9,8 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-@SpringBootApplication
+
 @EnableDiscoveryClient
+@SpringBootApplication(scanBasePackages = {"com.iss.auth", "com.iss.common"})
 public class AuthApplication {
     public static void main(String[] args) {
         SpringApplication.run(AuthApplication.class, args);
