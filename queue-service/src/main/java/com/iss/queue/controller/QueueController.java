@@ -30,9 +30,16 @@ public class QueueController {
         );
     }
 
-    @GetMapping("/specialtyDoctor/{specialtyId}")
-    public SuccessResponse<GetDoctorsResult> getDoctorsBySpecialtyId(@PathVariable String specialtyId) {
-        return new SuccessResponse<>(clinicApplicationService.getDoctorsBySpecialty(specialtyId));
+    @GetMapping("/specialtyDoctor/{specialty}")
+    public SuccessResponse<GetDoctorsResult> getDoctorsBySpecialtyId(@PathVariable String specialty) {
+        return new SuccessResponse<>(clinicApplicationService.getDoctorsBySpecialty(specialty));
+    }
+
+    @GetMapping("/clinicSpecialtyDoctor/{clinicId}/{specialty}")
+    public SuccessResponse<GetDoctorsResult> getDoctorsByClinicIdAndSpecialtyId(
+            @PathVariable int clinicId,
+            @PathVariable String specialty) {
+        return new SuccessResponse<>(clinicApplicationService.getDoctorsByClinicIdAndSpecialty(clinicId, specialty));
     }
 
 }

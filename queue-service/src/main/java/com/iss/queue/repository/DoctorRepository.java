@@ -140,4 +140,37 @@ public class DoctorRepository {
         }
         return doctors;
     }
+
+    public List<Doctor> getDoctorsByClinicIdAndSpecialty(int clinicId, String specialty) {
+        String sql = "SELECT id FROM clinic_staff_info WHERE specialty =? and clinic_id =?";
+
+        List<Long> staffIds = new ArrayList<>();
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, specialty);
+            statement.setInt(2, clinicId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    staffIds.add(resultSet.getLong("id"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("sql exception getDoctorsBySpecialty:" + e.getMessage(), e);
+        }
+
+        List<Doctor> doctors = new ArrayList<>();
+
+        for(Long staffId : staffIds) {
+            if(getUserRoleId(staffId) != 1) {
+                continue;
+            }
+            String doctorName = getDoctorNameById(staffId);
+            Doctor doctor = new Doctor(staffId, doctorName, specialty);
+            doctors.add(doctor);
+        }
+        return doctors;
+    }
 }

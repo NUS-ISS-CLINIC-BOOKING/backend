@@ -71,4 +71,17 @@ public class QueueApplicationService {
             return new GetDoctorsResult(doctors, "getdoctorsbyspecialty failed" + e.getMessage());
         }
     }
+
+    public GetDoctorsResult getDoctorsByClinicIdAndSpecialty(int clinicId, String specialty) {
+        List<Doctor> doctors = new ArrayList<>();
+        try {
+            doctors = doctorRepository.getDoctorsByClinicIdAndSpecialty(clinicId, specialty);
+            if(doctors.isEmpty()) {
+                return new GetDoctorsResult(doctors, "No doctors found");
+            }
+            return new GetDoctorsResult(doctors, "get doctors successfully");
+        } catch (Exception e) {
+            return new GetDoctorsResult(doctors, "getdoctorsbyspecialty failed" + e.getMessage());
+        }
+    }
 }
