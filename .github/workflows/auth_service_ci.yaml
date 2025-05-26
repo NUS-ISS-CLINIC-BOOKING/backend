@@ -109,6 +109,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: prod
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -128,10 +129,24 @@ jobs:
           location: asia-southeast1
           project_id: clinic-booking-460414
 
+      - name: Get Container Name from Deployment
+        id: container
+        run: |
+          CONTAINER=$(kubectl -n default get deployment auth-service -o=jsonpath="{.spec.template.spec.containers[0].name}")
+          echo "Container name is: $CONTAINER"
+          echo "container_name=$CONTAINER" >> $GITHUB_OUTPUT
+
       - name: Update Deployment Image
         run: |
-          REPO=${{ secrets.GCP_ARTIFACT_REPO }}   
+          REPO=${{ secrets.GCP_ARTIFACT_REPO }}
           TAG=${{ needs.build.outputs.tag }}
-          
-          echo "Deploying auth-service:$TAG"
-          kubectl -n default set image deployment/auth-service auth-service=$REPO/auth-service:$TAG
+          CONTAINER=${{ steps.container.outputs.container_name }}
+
+          echo "Deploying $REPO/auth-service:$TAG to container $CONTAINER"
+          kubectl -n default set image deployment/auth-service $CONTAINER=$REPO/auth-service:$TAG
+
+      - name: Wait for Rollout
+        run: |
+          kubectl -n default rollout status deployment/auth-service
+  
+
