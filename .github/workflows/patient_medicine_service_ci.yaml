@@ -135,7 +135,7 @@ jobs:
       - name: Get Container Name from Deployment
         id: container
         run: |
-          CONTAINER=$(kubectl -n default get deployment patient_medicine-service -o=jsonpath="{.spec.template.spec.containers[0].name}")
+          CONTAINER=$(kubectl -n default get deployment patient-medicine-service -o=jsonpath="{.spec.template.spec.containers[0].name}")
           echo "Container name is: $CONTAINER"
           echo "container_name=$CONTAINER" >> $GITHUB_OUTPUT
 
@@ -145,9 +145,9 @@ jobs:
           TAG=${{ needs.build.outputs.tag }}
           CONTAINER=${{ steps.container.outputs.container_name }}
 
-          echo "Deploying $REPO/patient_medicine-service:$TAG to container $CONTAINER"
-          kubectl -n default set image deployment/patient_medicine-service $CONTAINER=$REPO/patient_medicine-service:$TAG
+          echo "Deploying $REPO/patient-medicine-service:$TAG to container $CONTAINER"
+          kubectl -n default set image deployment/patient-medicine-service $CONTAINER=$REPO/patient-medicine-service:$TAG
 
       - name: Wait for Rollout
         run: |
-          kubectl -n default rollout status deployment/patient_medicine-service
+          kubectl -n default rollout status deployment/patient-medicine-service

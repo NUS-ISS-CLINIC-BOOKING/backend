@@ -1,9 +1,9 @@
 server:
-  port: 8082  # 确保端口不与其他服务冲突
+  port: 8082  
 
 spring:
   application:
-    name: queue-service  # 服务名称（唯一）
+    name: queue-service
   cloud:
     nacos:
       discovery:
