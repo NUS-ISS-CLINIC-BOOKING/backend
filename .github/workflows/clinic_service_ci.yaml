@@ -1,6 +1,5 @@
 name: CI clinic-service
 
-
 on:
   workflow_dispatch:
   push:
