@@ -7,9 +7,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: nacos:8848
-        username: nacos
-        password: Root123456@
+
   datasource:
     url: jdbc:mysql://101.42.116.10:3306/clinic_booking?serverTimezone=Asia/Shanghai&useSSL=false
     username: root

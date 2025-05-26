@@ -33,6 +33,5 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: nacos:8848
-        username: nacos
-        password: Root123456@
+        server-addr: 34.122.104.53:8848
+
