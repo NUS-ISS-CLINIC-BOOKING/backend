@@ -103,3 +103,20 @@ jobs:
             docker tag $REPO/auth-service:$TAG $REPO/auth-service:latest
             docker push $REPO/auth-service:latest
           fi
+
+  deploy:
+    needs: [ build, push ]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Export Docker tag
+        run: echo "TAG=${{ needs.build.outputs.tag }}" >> $GITHUB_ENV
+
+      # 👇👇👇 这里写你之后的部署逻辑，比如 kubectl set image 或 helm upgrade
+      - name: Deploy Placeholder
+        run: |
+          echo "Ready to deploy auth-service:$TAG to GKE"
