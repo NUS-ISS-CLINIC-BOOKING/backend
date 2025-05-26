@@ -1,5 +1,10 @@
 server:
   port: 8010
+  servlet:
+    session:
+      cookie:
+        same-site: Lax
+
 
 spring:
   application:
