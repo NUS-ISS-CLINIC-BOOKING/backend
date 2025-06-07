@@ -7,7 +7,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 
 @Configuration
-@EnableWebFluxSecurity  // ✅ 正确注解
+@EnableWebFluxSecurity
 public class SecurityConfig {
 
     @Bean
@@ -15,7 +15,7 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchange -> exchange
-                        .pathMatchers("/actuator/**").permitAll() // 可自由设定放行路径
+                        .pathMatchers("/actuator/**", "/api/**").permitAll()
                         .anyExchange().authenticated()
                 )
                 .build();
