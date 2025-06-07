@@ -9,3 +9,15 @@ spring:
       discovery:
         server-addr: nacos:8848
 
+
+management:
+  server:
+    port: 8091
+    address: 0.0.0.0
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    tags:
+      application: ${spring.application.name}
