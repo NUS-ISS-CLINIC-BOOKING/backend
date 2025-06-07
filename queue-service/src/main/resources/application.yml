@@ -7,7 +7,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 34.122.104.53:8848
+        server-addr: nacos:8848
 
   datasource:
     url: jdbc:mysql://101.42.116.10:3306/clinic_booking?serverTimezone=Asia/Shanghai&useSSL=false
