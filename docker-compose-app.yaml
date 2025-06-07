@@ -23,6 +23,7 @@ services:
       - clinic-booking
     ports:
       - "8010:8010"
+      - "8091:8091"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
     restart: always
