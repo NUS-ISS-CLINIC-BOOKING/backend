@@ -14,10 +14,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/actuator/prometheus").permitAll() // ✅ 放行 Prometheus
-                        .anyRequest().authenticated()                        // 其他接口继续鉴权
+                        .anyRequest().permitAll() // ✅ 所有请求都放行
                 )
-                .csrf(csrf -> csrf.disable());                           // ✅ 关闭 CSRF，避免 POST 被拒
+                .csrf(csrf -> csrf.disable());    // ✅ 禁用 CSRF（避免拦截 POST 等）
         return http.build();
     }
 }
