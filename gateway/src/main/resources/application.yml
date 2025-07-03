@@ -11,8 +11,7 @@ spring:
     nacos:
       discovery:
         server-addr: nacos:8848
-        username: nacos
-        password: Root123456@
+
 
     gateway:
       routes:
@@ -40,4 +39,16 @@ jwt:
   whitelist:
     - /api/auth/**
 
+
+management:
+  server:
+    port: 8091
+    address: 0.0.0.0
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    tags:
+      application: ${spring.application.name}
 

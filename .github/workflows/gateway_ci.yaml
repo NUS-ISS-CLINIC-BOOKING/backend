@@ -106,3 +106,48 @@ jobs:
             docker tag $REPO/gateway:$TAG $REPO/gateway:latest
             docker push $REPO/gateway:latest
           fi
+          
+  deploy:
+    needs: [ build, push ]
+    runs-on: ubuntu-latest
+    environment:
+      name: prod
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Export Docker tag
+        run: echo "TAG=${{ needs.build.outputs.tag }}" >> $GITHUB_ENV
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Set GKE Credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: clinic-booking
+          location: asia-southeast1
+          project_id: clinic-booking-460414
+
+      - name: Get Container Name from Deployment
+        id: container
+        run: |
+          CONTAINER=$(kubectl -n default get deployment gateway -o=jsonpath="{.spec.template.spec.containers[0].name}")
+          echo "Container name is: $CONTAINER"
+          echo "container_name=$CONTAINER" >> $GITHUB_OUTPUT
+
+      - name: Update Deployment Image
+        run: |
+          REPO=${{ secrets.GCP_ARTIFACT_REPO }}
+          TAG=${{ needs.build.outputs.tag }}
+          CONTAINER=${{ steps.container.outputs.container_name }}
+
+          echo "Deploying $REPO/gateway:$TAG to container $CONTAINER"
+          kubectl -n default set image deployment/gateway $CONTAINER=$REPO/gateway:$TAG
+
+      - name: Wait for Rollout
+        run: |
+          kubectl -n default rollout status deployment/gateway
