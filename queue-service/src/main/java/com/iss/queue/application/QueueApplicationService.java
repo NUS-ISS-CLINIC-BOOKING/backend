@@ -1,6 +1,7 @@
 package com.iss.queue.application;
 
 import com.iss.queue.domain.entity.Doctor;
+import com.iss.queue.dto.BookSlotResult;
 import com.iss.queue.dto.GetDoctorQueueResult;
 import com.iss.queue.dto.GetDoctorsResult;
 import com.iss.queue.repository.DoctorRepository;
@@ -82,6 +83,18 @@ public class QueueApplicationService {
             return new GetDoctorsResult(doctors, "get doctors successfully");
         } catch (Exception e) {
             return new GetDoctorsResult(doctors, "getdoctorsbyspecialty failed" + e.getMessage());
+        }
+    }
+
+    public BookSlotResult bookSlot(String date, int slotId, int clinicId, Long doctorId, Long patientId) {
+        try {
+            boolean bookResponse = slotRepository.bookSlot(date, TIME_SLOTS[slotId], patientId, clinicId, doctorId);
+            if (bookResponse == false) {
+                return new BookSlotResult(false, null, "book slot failed");
+            }
+            return new BookSlotResult(true, patientId, "book slot successfully");
+        } catch (Exception e) {
+            return new BookSlotResult(false, null, "book slot failed" + e.getMessage());
         }
     }
 }
