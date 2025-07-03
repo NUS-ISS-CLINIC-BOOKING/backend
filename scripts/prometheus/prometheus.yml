@@ -1,0 +1,29 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'gateway:8091' ]
+
+  - job_name: 'auth-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['auth-service:8091']
+
+  - job_name: 'queue-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'queue-service:8091' ]
+
+  - job_name: 'clinic-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'clinic-service:8091' ]
+
+  - job_name: 'patient-medicine-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'patient-medicine-service:8091' ]
+

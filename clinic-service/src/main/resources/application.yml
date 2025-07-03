@@ -8,11 +8,24 @@ spring:
     nacos:
       discovery:
         server-addr: nacos:8848
-        username: nacos
-        password: Root123456@
+
 
   datasource:
     url: jdbc:mysql://101.42.116.10:3306/clinic_booking?serverTimezone=Asia/Shanghai&useSSL=false
     username: root
     password: Root123456@
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+management:
+  server:
+    port: 8091
+    address: 0.0.0.0
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
