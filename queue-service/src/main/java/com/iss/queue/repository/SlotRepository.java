@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
 @Repository
 public class SlotRepository {
     @Autowired
@@ -44,6 +46,38 @@ public class SlotRepository {
             // 处理异常（建议记录日志或抛出业务异常）
             e.printStackTrace();
             return null;  // 默认返回不可用（避免因异常导致错误放行）
+        }
+    }
+
+    public boolean bookSlot(String date, String startime, Long patientId, int clinicId, Long doctorId) {
+        try {
+            String datetimeStr = date + " " + startime + ":00";  // 假设 startime 是 "HH:MM"
+
+            String insertSql = "INSERT INTO schedule (id, patient_id, start_time, doctor_id, clinic_id, duration) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
+
+            try (Connection conn = dataSource.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(insertSql)) {
+
+                UUID uuid = UUID.randomUUID();
+                long id = uuid.getMostSignificantBits();
+
+                ps.setLong(1, id);
+                ps.setLong(2, patientId);
+                ps.setString(3, datetimeStr);  // 直接传字符串
+                ps.setLong(4, doctorId);
+                ps.setInt(5, clinicId);
+                ps.setInt(6, 30);
+
+                int rowsAffected = ps.executeUpdate();
+                return rowsAffected > 0;
+            } catch (SQLException e) {
+                throw new RuntimeException("Database error: " + e.getMessage(), e);
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                    "Invalid time slot format: date=" + date + ", time=" + startime, e
+            );
         }
     }
 }
