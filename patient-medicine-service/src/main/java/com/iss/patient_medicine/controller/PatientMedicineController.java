@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.stripe.model.checkout.Session;
 
 import java.util.*;
 
@@ -24,40 +25,46 @@ public class PatientMedicineController {
         return "Patient_Medicine service is running!";
     }
 
-    // 创建 PayNow 支付订单
     @PostMapping("/paynow/create")
-    public ResponseEntity<?> createPayNowPayment(@RequestParam("appointmentId") String appointmentId) {
+    public ResponseEntity<?> createCheckoutSession(@RequestParam("appointmentId") String appointmentId) {
         try {
             Stripe.apiKey = stripeSecretKey;
 
-            // 创建支付参数
+            // 回调链接
+            String successUrl = "https://your-clinic.com/payment-success?session_id={CHECKOUT_SESSION_ID}";
+            String cancelUrl = "https://your-clinic.com/payment-cancel";
+
+            // 创建 Checkout Session 参数
             Map<String, Object> params = new HashMap<>();
-            params.put("amount", 10000); // 以分为单位（100.00 SGD）
-            params.put("currency", "sgd");
             params.put("payment_method_types", List.of("paynow"));
+            params.put("mode", "payment");
+            params.put("success_url", successUrl);
+            params.put("cancel_url", cancelUrl);
 
-            // 设置 metadata（用于 webhook 回调识别订单）
-            Map<String, String> metadata = new HashMap<>();
-            metadata.put("appointment_id", appointmentId);
-            params.put("metadata", metadata);
+            // 商品信息（可以理解为 appointment 支付 5 新币）
+            Map<String, Object> lineItem = new HashMap<>();
+            lineItem.put("quantity", 1);
 
-            // 创建支付意图
-            PaymentIntent intent = PaymentIntent.create(params);
+            Map<String, Object> priceData = new HashMap<>();
+            priceData.put("currency", "sgd");
+            priceData.put("unit_amount", 500); // 单位是分
+            priceData.put("product_data", Map.of("name", "Appointment Payment"));
 
-            // 提取二维码页面链接
-            String qrCodeUrl = null;
-            if (intent.getNextAction() != null && intent.getNextAction().getPaynowDisplayQrCode() != null) {
-                qrCodeUrl = intent.getNextAction().getPaynowDisplayQrCode().getHostedInstructionsUrl();
-            }
+            lineItem.put("price_data", priceData);
+            params.put("line_items", List.of(lineItem));
 
-            Map<String, String> result = new HashMap<>();
-            result.put("paymentIntentId", intent.getId());
-            result.put("qrCodeUrl", qrCodeUrl != null ? qrCodeUrl : "QR code unavailable");
+            // Metadata 用于 webhook 识别
+            params.put("metadata", Map.of("appointment_id", appointmentId));
 
-            return ResponseEntity.ok(result);
+            Session session = Session.create(params);
+
+            return ResponseEntity.ok(Map.of("checkoutUrl", session.getUrl()));
 
         } catch (StripeException e) {
             return ResponseEntity.status(500).body("Stripe error: " + e.getMessage());
         }
     }
+
+
+
 }

@@ -44,7 +44,7 @@ public class QueueController {
     @PutMapping("/bookSlot/{date}/{slotId}/{clinicId}/{doctorId}/{patientId}")
     public SuccessResponse<BookSlotResult> bookSlot(
             @PathVariable String date,
-            @PathVariable int slotId, @PathVariable int clinicId, @PathVariable Long doctorId, @PathVariable Long patientId) {
-        return new SuccessResponse<>(clinicApplicationService.bookSlot(date, slotId, clinicId, doctorId, patientId));
+            @PathVariable int slotId, @PathVariable int clinicId, @PathVariable Long doctorId, @PathVariable Long patientId,@PathVariable boolean paid) {
+        return new SuccessResponse<>(clinicApplicationService.bookSlot(date, slotId, clinicId, doctorId, patientId, paid));
     }
 }

@@ -49,35 +49,54 @@ public class SlotRepository {
         }
     }
 
-    public boolean bookSlot(String date, String startime, Long patientId, int clinicId, Long doctorId) {
+    public boolean bookSlot(String date, String startime, Long patientId, int clinicId, Long doctorId, Boolean paid) {
         try {
             String datetimeStr = date + " " + startime + ":00";  // 假设 startime 是 "HH:MM"
 
-            String insertSql = "INSERT INTO schedule (id, patient_id, start_time, doctor_id, clinic_id, duration) " +
-                    "VALUES (?, ?, ?, ?, ?, ?)";
+            if (!paid) {
+                String insertSql = "INSERT INTO schedule (id, patient_id, start_time, doctor_id, clinic_id, duration, paid) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-            try (Connection conn = dataSource.getConnection();
-                 PreparedStatement ps = conn.prepareStatement(insertSql)) {
+                try (Connection conn = dataSource.getConnection();
+                     PreparedStatement ps = conn.prepareStatement(insertSql)) {
 
-                UUID uuid = UUID.randomUUID();
-                long id = uuid.getMostSignificantBits();
+                    UUID uuid = UUID.randomUUID();
+                    long id = uuid.getMostSignificantBits();
 
-                ps.setLong(1, id);
-                ps.setLong(2, patientId);
-                ps.setString(3, datetimeStr);  // 直接传字符串
-                ps.setLong(4, doctorId);
-                ps.setInt(5, clinicId);
-                ps.setInt(6, 30);
+                    ps.setLong(1, id);
+                    ps.setLong(2, patientId);
+                    ps.setString(3, datetimeStr);
+                    ps.setLong(4, doctorId);
+                    ps.setInt(5, clinicId);
+                    ps.setInt(6, 30);        // duration
+                    ps.setBoolean(7, false); // paid = false
 
-                int rowsAffected = ps.executeUpdate();
-                return rowsAffected > 0;
-            } catch (SQLException e) {
-                throw new RuntimeException("Database error: " + e.getMessage(), e);
+                    int rowsAffected = ps.executeUpdate();
+                    return rowsAffected > 0;
+                }
+            } else {
+                String updateSql = "UPDATE schedule SET paid = ? WHERE patient_id = ? AND start_time = ? AND doctor_id = ? AND clinic_id = ?";
+
+                try (Connection conn = dataSource.getConnection();
+                     PreparedStatement ps = conn.prepareStatement(updateSql)) {
+
+                    ps.setBoolean(1, true);
+                    ps.setLong(2, patientId);
+                    ps.setString(3, datetimeStr);
+                    ps.setLong(4, doctorId);
+                    ps.setInt(5, clinicId);
+
+                    int rowsUpdated = ps.executeUpdate();
+                    return rowsUpdated > 0;
+                }
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error: " + e.getMessage(), e);
         } catch (Exception e) {
             throw new IllegalArgumentException(
                     "Invalid time slot format: date=" + date + ", time=" + startime, e
             );
         }
     }
+
 }
