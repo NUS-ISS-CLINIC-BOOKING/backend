@@ -38,6 +38,7 @@ spring:
 jwt:
   whitelist:
     - /api/auth/**
+    - /api/patient_medicine/webhook
 
 
 management:

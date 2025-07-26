@@ -1,21 +1,19 @@
 package com.iss.patient_medicine.controller;
 
 import com.stripe.Stripe;
-import com.stripe.model.PaymentIntent;
 import com.stripe.exception.StripeException;
-import org.json.JSONObject;
+import com.stripe.model.checkout.Session;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.stripe.model.checkout.Session;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/patient_medicine")
 public class PatientMedicineController {
 
-    // 你可以把这个 secret 配置到 application.yml 或 .env 中
     @Value("${stripe.secret-key}")
     private String stripeSecretKey;
 
@@ -25,39 +23,36 @@ public class PatientMedicineController {
         return "Patient_Medicine service is running!";
     }
 
+    // 创建 PayNow Checkout Session
     @PostMapping("/paynow/create")
     public ResponseEntity<?> createCheckoutSession(@RequestParam("appointmentId") String appointmentId) {
         try {
             Stripe.apiKey = stripeSecretKey;
 
-            // 回调链接
             String successUrl = "https://your-clinic.com/payment-success?session_id={CHECKOUT_SESSION_ID}";
             String cancelUrl = "https://your-clinic.com/payment-cancel";
 
-            // 创建 Checkout Session 参数
-            Map<String, Object> params = new HashMap<>();
-            params.put("payment_method_types", List.of("paynow"));
-            params.put("mode", "payment");
-            params.put("success_url", successUrl);
-            params.put("cancel_url", cancelUrl);
+            Map<String, Object> priceData = Map.of(
+                    "currency", "sgd",
+                    "unit_amount", 500,
+                    "product_data", Map.of("name", "Appointment Payment")
+            );
 
-            // 商品信息（可以理解为 appointment 支付 5 新币）
-            Map<String, Object> lineItem = new HashMap<>();
-            lineItem.put("quantity", 1);
+            Map<String, Object> lineItem = Map.of(
+                    "quantity", 1,
+                    "price_data", priceData
+            );
 
-            Map<String, Object> priceData = new HashMap<>();
-            priceData.put("currency", "sgd");
-            priceData.put("unit_amount", 500); // 单位是分
-            priceData.put("product_data", Map.of("name", "Appointment Payment"));
-
-            lineItem.put("price_data", priceData);
-            params.put("line_items", List.of(lineItem));
-
-            // Metadata 用于 webhook 识别
-            params.put("metadata", Map.of("appointment_id", appointmentId));
+            Map<String, Object> params = Map.of(
+                    "payment_method_types", List.of("paynow"),
+                    "mode", "payment",
+                    "success_url", successUrl,
+                    "cancel_url", cancelUrl,
+                    "line_items", List.of(lineItem),
+                    "metadata", Map.of("appointment_id", appointmentId)
+            );
 
             Session session = Session.create(params);
-
             return ResponseEntity.ok(Map.of("checkoutUrl", session.getUrl()));
 
         } catch (StripeException e) {
@@ -65,6 +60,17 @@ public class PatientMedicineController {
         }
     }
 
+    // ✅ Webhook 回调 - 不用 servlet，适合开发/调试环境
+    @PostMapping("/webhook")
+    public ResponseEntity<String> handleWebhook(@RequestBody Map<String, Object> body) {
+        System.out.println("✅ Webhook received");
 
+        String eventType = (String) body.get("type");
 
+        if (!"checkout.session.completed".equals(eventType)) {
+            return ResponseEntity.ok("Ignored event type: " + eventType);
+        }
+        System.out.println("✅ 支付完成");
+        return ResponseEntity.ok("OK");
+    }
 }
