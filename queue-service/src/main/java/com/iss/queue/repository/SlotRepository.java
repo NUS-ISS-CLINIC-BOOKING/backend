@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.*;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -30,8 +32,9 @@ public class SlotRepository {
             throw new IllegalArgumentException("Invalid time slot format: date=" + date + ", time=" + startTime);
         }
 
-        String sql = "SELECT patient_id FROM schedule WHERE start_time = ? AND doctor_id = ? ORDER BY start_time ASC";  // 添加 date 条件
-        try (Connection conn = dataSource.getConnection();
+        String sql = "SELECT patient_id FROM schedule " +
+                "WHERE CONVERT_TZ(start_time, '+00:00', '+08:00') = ? " +  // 显式转换时区
+                "AND doctor_id = ? ORDER BY start_time ASC ";        try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setTimestamp(1, timestamp);
