@@ -11,7 +11,16 @@ public class Slot {
     private String date;
     private String startTime;
     private Long patientId;
+    private Long doctorId;
+    private int clinicId;
     private boolean available;
+
+    public Slot(String date, String time, Long patientId, boolean b) {
+        this.date = date;
+        this.startTime = time;
+        this.patientId = patientId;
+        this.available = b;
+    }
 
     public boolean bookSlot(Long patientId) {
         if (available == false) {

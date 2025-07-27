@@ -5,6 +5,7 @@ import com.iss.queue.common.response.SuccessResponse;
 import com.iss.queue.dto.BookSlotResult;
 import com.iss.queue.dto.GetDoctorQueueResult;
 import com.iss.queue.dto.GetDoctorsResult;
+import com.iss.queue.dto.GetSlotResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,5 +47,10 @@ public class QueueController {
             @PathVariable String date,
             @PathVariable int slotId, @PathVariable int clinicId, @PathVariable Long doctorId, @PathVariable Long patientId) {
         return new SuccessResponse<>(clinicApplicationService.bookSlot(date, slotId, clinicId, doctorId, patientId));
+    }
+
+    @GetMapping("/getSelfSlots/{patientId}")
+    public SuccessResponse<GetSlotResult> getSelfSlots(@PathVariable Long patientId) {
+        return new SuccessResponse<>(clinicApplicationService.getSelfSlots(patientId));
     }
 }

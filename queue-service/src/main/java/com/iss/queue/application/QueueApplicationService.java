@@ -4,6 +4,7 @@ import com.iss.queue.domain.entity.Doctor;
 import com.iss.queue.dto.BookSlotResult;
 import com.iss.queue.dto.GetDoctorQueueResult;
 import com.iss.queue.dto.GetDoctorsResult;
+import com.iss.queue.dto.GetSlotResult;
 import com.iss.queue.repository.DoctorRepository;
 import com.iss.queue.repository.SlotRepository;
 import lombok.RequiredArgsConstructor;
@@ -95,6 +96,19 @@ public class QueueApplicationService {
             return new BookSlotResult(true, patientId, "book slot successfully");
         } catch (Exception e) {
             return new BookSlotResult(false, null, "book slot failed" + e.getMessage());
+        }
+    }
+
+    public GetSlotResult getSelfSlots(Long patientId) {
+        try {
+            List<Slot> slots = new ArrayList<>();
+            slots = slotRepository.getSlotsByPatientId(patientId);
+            if(slots.isEmpty()) {
+                return new GetSlotResult(new ArrayList<>(), "No slots found");
+            }
+            return new GetSlotResult(slots, "get slots successfully");
+        } catch (Exception e) {
+            return new GetSlotResult(null, "get slots failed" + e.getMessage());
         }
     }
 }

@@ -15,6 +15,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import com.iss.queue.domain.entity.Slot;
 
 @Repository
 public class SlotRepository {
@@ -29,7 +30,7 @@ public class SlotRepository {
             throw new IllegalArgumentException("Invalid time slot format: date=" + date + ", time=" + startTime);
         }
 
-        String sql = "SELECT patient_id FROM schedule WHERE start_time = ? AND doctor_id = ?";  // 添加 date 条件
+        String sql = "SELECT patient_id FROM schedule WHERE start_time = ? AND doctor_id = ? ORDER BY start_time ASC";  // 添加 date 条件
         try (Connection conn = dataSource.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -47,6 +48,37 @@ public class SlotRepository {
             e.printStackTrace();
             return null;  // 默认返回不可用（避免因异常导致错误放行）
         }
+    }
+
+    public List<Slot> getSlotsByPatientId(Long PatienId) {
+        String sql = "SELECT id, patient_id, start_time, doctor_id, clinic_id, duration FROM schedule WHERE patient_id =? ORDER BY start_time ASC";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+                 ps.setLong(1, PatienId);
+                 try (ResultSet rs = ps.executeQuery()) {
+                     if (rs.next()) {
+                         List<Slot> slots = new ArrayList<>();
+                         do {
+                             long id = rs.getLong("id");
+                             String startTime = rs.getString("start_time");
+                             Long patientId = rs.getLong("patient_id");
+                             Long doctorId = rs.getLong("doctor_id");
+                             int clinicId = rs.getInt("clinic_id");
+                             int duration = rs.getInt("duration");
+                             String date = startTime.split(" ")[0];
+                             Slot slot = new Slot(date, startTime, patientId, doctorId, clinicId, true);
+                             slots.add(slot);
+                         } while (rs.next());
+                         return slots;
+                     }
+                     return null;
+                 } catch (SQLException e) {
+                     throw new RuntimeException(e);
+                 }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     public boolean bookSlot(String date, String startime, Long patientId, int clinicId, Long doctorId) {
