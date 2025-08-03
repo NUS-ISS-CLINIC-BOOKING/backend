@@ -1,7 +1,7 @@
-package com.iss.queue.repository;
+package com.iss.patient_medicine.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.iss.queue.util.DateTimeConverter;
+import com.iss.patient_medicine.util.DateTimeConverter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;

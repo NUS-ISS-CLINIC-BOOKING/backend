@@ -2,6 +2,7 @@ package com.iss.patient_medicine.controller;
 
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
+import com.iss.patient_medicine.repository.SlotRepository;
 import com.stripe.model.checkout.Session;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,11 @@ public class PatientMedicineController {
 
     @Value("${stripe.secret-key}")
     private String stripeSecretKey;
+    private final SlotRepository slotRepository;
+
+    public PatientMedicineController(SlotRepository slotRepository) {
+        this.slotRepository = slotRepository;
+    }
 
     // 服务健康检查
     @GetMapping("/status")
@@ -29,6 +35,7 @@ public class PatientMedicineController {
         try {
             Stripe.apiKey = stripeSecretKey;
 
+            // TODO需要修改成前端的url
             String successUrl = "https://your-clinic.com/payment-success?session_id={CHECKOUT_SESSION_ID}";
             String cancelUrl = "https://your-clinic.com/payment-cancel";
 
@@ -71,6 +78,8 @@ public class PatientMedicineController {
             return ResponseEntity.ok("Ignored event type: " + eventType);
         }
         System.out.println("✅ 支付完成");
+        // 修改bookslot的paid字段
+
         return ResponseEntity.ok("OK");
     }
 }

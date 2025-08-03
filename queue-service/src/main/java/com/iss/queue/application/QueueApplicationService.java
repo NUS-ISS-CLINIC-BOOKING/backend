@@ -86,9 +86,9 @@ public class QueueApplicationService {
         }
     }
 
-    public BookSlotResult bookSlot(String date, int slotId, int clinicId, Long doctorId, Long patientId, boolean paid) {
+    public BookSlotResult bookSlot(String date, int slotId, int clinicId, Long doctorId, Long patientId) {
         try {
-            boolean bookResponse = slotRepository.bookSlot(date, TIME_SLOTS[slotId], patientId, clinicId, doctorId, paid);
+            boolean bookResponse = slotRepository.bookSlot(date, TIME_SLOTS[slotId], patientId, clinicId, doctorId);
             if (bookResponse == false) {
                 return new BookSlotResult(false, null, "book slot failed");
             }
