@@ -1,0 +1,14 @@
+server:
+  port: 8085 # 为新服务分配一个端口
+
+spring:
+  application:
+    name: symptom-checker-service # 服务名称，用于注册到 Nacos
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848 # Nacos 服务器地址
+
+logging:
+  level:
+    com.iss.symptom_checker: DEBUG # 设置日志级别以便调试
