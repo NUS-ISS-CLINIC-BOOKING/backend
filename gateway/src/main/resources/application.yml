@@ -38,7 +38,8 @@ spring:
 jwt:
   whitelist:
     - /api/auth/**
-
+    - /api/patient_medicine/paynow/create
+    - /api/patient_medicine/wenhook
 
 management:
   server:

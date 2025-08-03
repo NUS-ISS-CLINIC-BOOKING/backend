@@ -18,8 +18,8 @@
         </processorPath>
         <module name="auth-service" />
         <module name="queue-service" />
-        <module name="common" />
         <module name="clinic-service" />
+        <module name="common" />
         <module name="gateway" />
       </profile>
     </annotationProcessing>
