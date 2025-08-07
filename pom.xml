@@ -15,14 +15,14 @@
   <!-- 父项目必须为 pom 类型 -->
   <name>clinic-booking</name>
   <description>Clinic Booking Platform</description>
-  <!-- 统一管理 Java 和 Spring Cloud 版本 -->
+  <!-- 统一manage Java 和 Spring Cloud 版本 -->
   <properties>
     <java.version>17</java.version>
     <spring-cloud.version>2023.0.1</spring-cloud.version>
     <spring-cloud-alibaba.version>2023.0.1.0</spring-cloud-alibaba.version>
     <!-- 修正版本号 -->
   </properties>
-  <!-- 依赖管理 -->
+  <!-- 依赖manage -->
   <dependencyManagement>
     <dependencies>
       <!-- Spring Cloud BOM -->

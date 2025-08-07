@@ -1,4 +1,4 @@
-version: '3'
+version: '4'
 
 services:
   gateway:
@@ -49,6 +49,7 @@ services:
       - clinic-booking
     ports:
       - "8084:8084"
+    env_file: .env
     environment:
       - SPRING_PROFILES_ACTIVE=dev
     restart: always

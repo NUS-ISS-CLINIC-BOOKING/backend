@@ -6,7 +6,13 @@ import com.stripe.model.checkout.Session;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.iss.patient_medicine.dto.SymptomCheckCommand;
+import com.iss.patient_medicine.dto.SymptomCheckResult;
+import com.iss.patient_medicine.service.AiSymptomCheckerService;
+import jakarta.validation.Valid;
+import com.iss.common.common.response.SuccessResponse;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +22,23 @@ public class PatientMedicineController {
 
     @Value("${stripe.secret-key}")
     private String stripeSecretKey;
+
+    private final AiSymptomCheckerService aiSymptomCheckerService;
+
+    public PatientMedicineController(AiSymptomCheckerService aiSymptomCheckerService) {
+        this.aiSymptomCheckerService = aiSymptomCheckerService;
+    }
+
+    @PostMapping("/symptom-check")
+    public SuccessResponse<SymptomCheckResult> checkSymptoms(@Valid @RequestBody SymptomCheckCommand command) {
+        try {
+            List<String> specialties = aiSymptomCheckerService.checkSymptoms(command.getSymptoms());
+            return new SuccessResponse<>(new SymptomCheckResult(specialties, "症状分析成功"));
+        } catch (Exception e) {
+            return new SuccessResponse<>(
+                    new SymptomCheckResult(Collections.emptyList(), "分析失败：" + e.getMessage()));
+        }
+    }
 
     // 服务健康检查
     @GetMapping("/status")
@@ -73,4 +96,6 @@ public class PatientMedicineController {
         System.out.println("✅ 支付完成");
         return ResponseEntity.ok("OK");
     }
+
+
 }

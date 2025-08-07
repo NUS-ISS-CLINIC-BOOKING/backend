@@ -26,5 +26,8 @@ management:
     tags:
       application: ${spring.application.name}
 
-
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY}
+dashscope:
+  api-key: ${DASHSCOPE_API_KEY}
 
